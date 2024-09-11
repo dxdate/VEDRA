@@ -3,6 +3,7 @@ import random
 import sys
 import time
 
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor
