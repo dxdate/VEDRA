@@ -2,16 +2,12 @@ import random
 
 class Buckets():
     def __init__(self):
-        self.generated_number = 0
-        self.start_liters = 2
+        self.start_liters = 1
         self.speed = 0
-        self.zero_speed_time = 300_000  # 300 секунд
-        self.max_speed_time = 1  # 0.3 секунды
-        self.full_buckets = []
+        self.zero_speed_time = 300_000
+        self.max_speed_time = 1
         self.buckets = []
         self.tick_time = 0
-        # self.generate_buckets()
-        # self.create_tick()
 
     def generate_buckets(self):
         for i in range(10):
@@ -26,7 +22,16 @@ class Buckets():
         self.buckets[bucket_i][1] += 1
         return self.buckets
 
-    def check_bucket(self, bucket_i):
+    def remove_water_from_bucket(self, bucket_i):
+        self.buckets[bucket_i][1] -= 1
+        return self.buckets
+
+    def check_bucket_full(self, bucket_i):
         if self.buckets[bucket_i][1] == 10:
             return False
         return True
+
+    def check_bucket_empty(self, bucket_i):
+        if self.buckets[bucket_i][1] == 0:
+            return True
+        return False

@@ -34,6 +34,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.thread = QThread()
         self.worker = Worker()
         self.flag_end = False
+        self.bad_num_chance = 0.1 # шанс на генерацию аварийной лампы
         self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
                           self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
                           self.bucket_8, self.bucket_9, self.bucket_10]
@@ -96,17 +97,40 @@ class Main_window(QMainWindow, Ui_MainWindow):
             del self.buckets[bucket_i]
 
 
-    def test(self, num):
+    def test(self, num, bad_num):
         if not len(self.buckets) == 0:
-            self.label_generated_number.setText(f"Gen num: {str(num)}  Buc i: {str(num + 1)}")
-            self.Buckets.add_water_to_bucket(num % len(self.buckets))
-            if not self.Buckets.check_bucket(num % len(self.buckets)):
+            if random.random() <= self.bad_num_chance:
+                if bad_num == num:
+                    self.label_bad_num.setText(f"Аварийная лампа! Ведра сопадают, пропускаем!")
+                elif self.Buckets.check_bucket_empty(bad_num % len(self.buckets)):
+                    self.label_bad_num.setText(f"Аварийная лампа! Ведро пустое, пропускаем!")
+                    self.label_generated_number.setText(
+                        f"Gen num: {str(num)}  Buc i: {str((num + 1) % len(self.buckets))}")
+                    self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                else:
+                    # print(self.buckets)
+                    # print(bad_num, len(self.buckets), f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
+                    self.label_bad_num.setText(
+                        f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
+                    self.Buckets.remove_water_from_bucket(bad_num % len(self.buckets))
+                    self.label_generated_number.setText(
+                        f"Gen: {str(num)}  Добавили в ведро: {str((num + 1) % len(self.buckets))}")
+                    self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                    print(self.buckets)
+            else:
+                self.label_bad_num.setText(f"Все работает без ошибок:)")
+                self.label_generated_number.setText(
+                    f"Gen: {str(num)}  Добавили в ведро: {str((num + 1) % len(self.buckets))}")
+                self.Buckets.add_water_to_bucket(num % len(self.buckets))
+            if not self.Buckets.check_bucket_full(num % len(self.buckets)):
                 self.hide_bucket(num % len(self.buckets))
             self.fill_buckets_text()
+            # print(self.buckets, num, bad_num)
         elif not self.flag_end:
             self.flag_end = True
             # self.start()
             self.label_generated_number.setText(f"Ведра заполнены!")
+            self.label_bad_num.setText(f"")
 
     def start(self):
         if self.flag_start:
@@ -168,7 +192,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
 
 class Worker(QThread):
-    generated_number = Signal(int)
+    generated_number = Signal(int, int)
     update_value_signal = Signal(int)
 
     def __init__(self, parent=None):
@@ -185,6 +209,7 @@ class Worker(QThread):
         self.updated_tick_time = True  # Сигнализируем об изменении времени тика
 
     def run(self):
+        self.generated_number.emit(round(random.randint(0, 9)), round(random.randint(0, 9)))
         while self.running:
             # print(self.running)
             start_time = time.time()  # Засекаем текущее время
@@ -197,7 +222,7 @@ class Worker(QThread):
                 # time.sleep(0.01)  # Короткий сон для снижения нагрузки на CPU
 
             # Генерация "тика" после времени ожидания
-            self.generated_number.emit(round(random.randint(0, 9)))  # Пример, можете заменить на свою логику
+            self.generated_number.emit(round(random.randint(0, 9)), round(random.randint(0, 9)))  # Пример, можете заменить на свою логику
             # print(f"Tick with tick_time: {self.tick_time}")
 
     def stop(self):
