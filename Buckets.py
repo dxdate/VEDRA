@@ -19,14 +19,8 @@ class Buckets():
         return self.buckets
 
     def calculate_tick_time(self):
-        # print(self.speed)
-        # print(self.speed, int(self.zero_speed_time / (1 + (self.speed / 10) ** 4)))
         return int(self.zero_speed_time / (1 + (self.speed / 10) ** 4))
 
-
-    def create_tick(self):
-        self.generated_number = round(random.random()*10, 5)
-        return self.generated_number
 
     def add_water_to_bucket(self, bucket_i):
         self.buckets[bucket_i][1] += 1

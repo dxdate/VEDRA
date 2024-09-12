@@ -33,6 +33,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.Buckets = Buckets()
         self.thread = QThread()
         self.worker = Worker()
+        self.flag_end = False
         self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
                           self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
                           self.bucket_8, self.bucket_9, self.bucket_10]
@@ -93,15 +94,19 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
             # Удаляем данные ведра
             del self.buckets[bucket_i]
+
+
     def test(self, num):
-        self.label_generated_number.setText(f"Gen num: {str(num)}  Buc i: {str(num + 1)}")
-        if num == len(self.buckets):
-            self.Buckets.add_water_to_bucket(num)
-        else:
+        if not len(self.buckets) == 0:
+            self.label_generated_number.setText(f"Gen num: {str(num)}  Buc i: {str(num + 1)}")
             self.Buckets.add_water_to_bucket(num % len(self.buckets))
-        if not self.Buckets.check_bucket(num):
-            self.hide_bucket(num)
-        self.fill_buckets_text()
+            if not self.Buckets.check_bucket(num % len(self.buckets)):
+                self.hide_bucket(num % len(self.buckets))
+            self.fill_buckets_text()
+        elif not self.flag_end:
+            self.flag_end = True
+            # self.start()
+            self.label_generated_number.setText(f"Ведра заполнены!")
 
     def start(self):
         if self.flag_start:

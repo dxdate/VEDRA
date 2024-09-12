@@ -51,7 +51,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>10</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="inputMethodHints">
@@ -73,7 +73,7 @@
       <x>290</x>
       <y>320</y>
       <width>121</width>
-      <height>86</height>
+      <height>106</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -112,6 +112,11 @@
       <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
+    </property>
     <property name="text">
      <string/>
     </property>
@@ -127,7 +132,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>10</pointsize>
+      <pointsize>8</pointsize>
       <kerning>false</kerning>
      </font>
     </property>
@@ -146,13 +151,18 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>401</width>
+      <width>405</width>
       <height>271</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="buckets_layout">
      <item row="1" column="0">
       <widget class="QLabel" name="label_bucket_1">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -192,6 +202,11 @@
      </item>
      <item row="1" column="1">
       <widget class="QLabel" name="label_bucket_2">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -199,6 +214,11 @@
      </item>
      <item row="1" column="4">
       <widget class="QLabel" name="label_bucket_5">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -231,6 +251,11 @@
      </item>
      <item row="1" column="2">
       <widget class="QLabel" name="label_bucket_3">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -288,6 +313,11 @@
      </item>
      <item row="1" column="3">
       <widget class="QLabel" name="label_bucket_4">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -327,6 +357,11 @@
      </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_bucket_6">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -334,6 +369,11 @@
      </item>
      <item row="3" column="1">
       <widget class="QLabel" name="label_bucket_7">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -341,6 +381,11 @@
      </item>
      <item row="3" column="2">
       <widget class="QLabel" name="label_bucket_8">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -348,6 +393,11 @@
      </item>
      <item row="3" column="3">
       <widget class="QLabel" name="label_bucket_9">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -355,6 +405,11 @@
      </item>
      <item row="3" column="4">
       <widget class="QLabel" name="label_bucket_10">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>TextLabel</string>
        </property>
@@ -373,7 +428,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>10</pointsize>
+      <pointsize>8</pointsize>
       <kerning>false</kerning>
      </font>
     </property>
@@ -398,7 +453,7 @@
     </property>
     <property name="font">
      <font>
-      <pointsize>10</pointsize>
+      <pointsize>8</pointsize>
      </font>
     </property>
     <property name="text">
@@ -449,7 +504,7 @@
      <x>0</x>
      <y>0</y>
      <width>525</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
