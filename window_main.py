@@ -217,7 +217,7 @@ class Ui_MainWindow(object):
         self.label_bucket_10.setObjectName("label_bucket_10")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 29))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 23))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")
@@ -259,7 +259,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Ведра пока без лампы( А еще рома гей"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Ведра уже с лампой) А еще рома гей"))
         self.button_start.setText(_translate("MainWindow", "Старт"))
         self.button_pause.setText(_translate("MainWindow", "Пауза"))
         self.button_exit.setText(_translate("MainWindow", "Выход"))

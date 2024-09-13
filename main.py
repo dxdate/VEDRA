@@ -3,7 +3,6 @@ import random
 import sys
 import time
 
-
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor
@@ -23,6 +22,20 @@ def quit_app():
     sys.exit(0)
 
 
+def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=180):
+    image = pixmap.toImage()
+    width, height = image.width(), image.height()
+    for x in range(width):
+        for y in range(height):
+            pixel_color = QColor(image.pixel(x, y))
+            if (abs(pixel_color.red() - 255) < tolerance and
+                    abs(pixel_color.green() - 255) < tolerance and
+                    abs(pixel_color.blue() - 255) < tolerance):
+                new_color = QColor(target_color[0], target_color[1], target_color[2])
+                image.setPixel(x, y, new_color.rgb())
+    return QPixmap.fromImage(image)
+
+
 class Main_window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -34,14 +47,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.thread = QThread()
         self.worker = Worker()
         self.flag_end = False
-        self.bad_num_chance = 0.1 # шанс на генерацию аварийной лампы
-        self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
-                          self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
-                          self.bucket_8, self.bucket_9, self.bucket_10]
-
-        self.label_buckets_l = [self.label_bucket_1, self.label_bucket_2, self.label_bucket_3,
-                          self.label_bucket_4, self.label_bucket_5, self.label_bucket_6, self.label_bucket_7,
-                          self.label_bucket_8, self.label_bucket_9, self.label_bucket_10]
+        self.bad_num_chance = 0.1  # шанс на генерацию аварийной лампы
 
         self.current_speed = self.slider_speed.value()
         self.label_speed.setValidator(QIntValidator(0, 100, self))
@@ -54,34 +60,35 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.button_start.clicked.connect(self.start)
         self.button_pause.clicked.connect(self.pause)
         self.worker.generated_number.connect(self.test)
+        self.init_app()
         self.Buckets.speed = self.current_speed
         self.Buckets.tick_time = self.Buckets.calculate_tick_time()
         self.change_speed()
+
+    def init_app(self):
+        self.buckets = []
         self.buckets = self.Buckets.generate_buckets()
+        self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
+                          self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
+                          self.bucket_8, self.bucket_9, self.bucket_10]
+
+        self.label_buckets_l = [self.label_bucket_1, self.label_bucket_2, self.label_bucket_3,
+                                self.label_bucket_4, self.label_bucket_5, self.label_bucket_6, self.label_bucket_7,
+                                self.label_bucket_8, self.label_bucket_9, self.label_bucket_10]
+        for i in range(10):
+            self.buckets_l[i].show()
+            self.label_buckets_l[i].show()
         self.paint_buckets()
+        print(self.buckets)
         self.fill_buckets_text()
 
     def fill_buckets_text(self):
-        for i in range(len(self.buckets)):
-            self.label_buckets_l[i].setText(f"  Bucket: {self.buckets[i][0] + 1}\n  Liters: {self.buckets[i][1]}")
-
+        for k in range(len(self.buckets)):
+            self.label_buckets_l[k].setText(f"  Bucket: {self.buckets[k][0] + 1}\n  Liters: {self.buckets[k][1]}")
 
     def paint_buckets(self):
-        for i in range(10):
-            self.buckets_l[i].setPixmap(self.recolor_image(self.buckets_l[i].pixmap(), target_color=colors[i]))
-
-    def recolor_image(self, pixmap, target_color=(0, 0, 255), tolerance=180):
-        image = pixmap.toImage()
-        width, height = image.width(), image.height()
-        for x in range(width):
-            for y in range(height):
-                pixel_color = QColor(image.pixel(x, y))
-                if (abs(pixel_color.red() - 255) < tolerance and
-                        abs(pixel_color.green() - 255) < tolerance and
-                        abs(pixel_color.blue() - 255) < tolerance):
-                    new_color = QColor(target_color[0], target_color[1], target_color[2])
-                    image.setPixel(x, y, new_color.rgb())
-        return QPixmap.fromImage(image)
+        for k in range(10):
+            self.buckets_l[k].setPixmap(recolor_image(self.buckets_l[k].pixmap(), target_color=colors[k]))
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
@@ -96,32 +103,32 @@ class Main_window(QMainWindow, Ui_MainWindow):
             # Удаляем данные ведра
             del self.buckets[bucket_i]
 
-
     def test(self, num, bad_num):
         if not len(self.buckets) == 0:
-            if random.random() <= self.bad_num_chance:
-                if bad_num == num:
-                    self.label_bad_num.setText(f"Аварийная лампа! Ведра сопадают, пропускаем!")
-                elif self.Buckets.check_bucket_empty(bad_num % len(self.buckets)):
-                    self.label_bad_num.setText(f"Аварийная лампа! Ведро пустое, пропускаем!")
-                    self.label_generated_number.setText(
-                        f"Gen num: {str(num)}  Buc i: {str((num + 1) % len(self.buckets))}")
-                    self.Buckets.add_water_to_bucket(num % len(self.buckets))
+            if self.flag_start:
+                if random.random() <= self.bad_num_chance:
+                    if bad_num == num:
+                        self.label_bad_num.setText(f"Аварийная лампа! Ведра сопадают, пропускаем!")
+                    elif self.Buckets.check_bucket_empty(bad_num % len(self.buckets)):
+                        self.label_bad_num.setText(f"Аварийная лампа! Ведро пустое, пропускаем!")
+                        self.label_generated_number.setText(
+                            f"Gen num: {str(num)}  Buc i: {str((num + 1) % len(self.buckets))}")
+                        self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                    else:
+                        # print(self.buckets)
+                        # print(bad_num, len(self.buckets), f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
+                        self.label_bad_num.setText(
+                            f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
+                        self.Buckets.remove_water_from_bucket(bad_num % len(self.buckets))
+                        self.label_generated_number.setText(
+                            f"Gen: {str(num)}  Добавили в ведро: {str((num + 1) % len(self.buckets))}")
+                        self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                        # print(self.buckets)
                 else:
-                    # print(self.buckets)
-                    # print(bad_num, len(self.buckets), f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
-                    self.label_bad_num.setText(
-                        f"Аварийная лампа! Из ведра {str((bad_num + 1) % len(self.buckets))} выбежал литр(")
-                    self.Buckets.remove_water_from_bucket(bad_num % len(self.buckets))
+                    self.label_bad_num.setText(f"Все работает без ошибок:)")
                     self.label_generated_number.setText(
                         f"Gen: {str(num)}  Добавили в ведро: {str((num + 1) % len(self.buckets))}")
                     self.Buckets.add_water_to_bucket(num % len(self.buckets))
-                    print(self.buckets)
-            else:
-                self.label_bad_num.setText(f"Все работает без ошибок:)")
-                self.label_generated_number.setText(
-                    f"Gen: {str(num)}  Добавили в ведро: {str((num + 1) % len(self.buckets))}")
-                self.Buckets.add_water_to_bucket(num % len(self.buckets))
             if not self.Buckets.check_bucket_full(num % len(self.buckets)):
                 self.hide_bucket(num % len(self.buckets))
             self.fill_buckets_text()
@@ -135,10 +142,6 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def start(self):
         if self.flag_start:
             self.stop()
-            self.flag_start = False
-            self.label_generated_number.setText('')
-            self.button_start.setText('Старт')
-            self.button_pause.setEnabled(False)
         else:
             self.flag_start = True
             self.button_start.setText('Стоп')
@@ -147,10 +150,15 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.worker.update_params(self.Buckets.tick_time)
             self.worker.start()
 
-
-
     def stop(self):  # сбрасывать ведра на НУ !доделать!
         self.worker.stop_signal(False)
+        self.flag_start = False
+        self.label_generated_number.setText('')
+        self.label_bad_num.setText('')
+        self.button_start.setText('Старт')
+        self.button_pause.setText('Пауза')
+        self.init_app()
+        self.button_pause.setEnabled(False)
 
     def pause(self):  # пауза на поток
         if self.flag_pause:
@@ -222,7 +230,8 @@ class Worker(QThread):
                 # time.sleep(0.01)  # Короткий сон для снижения нагрузки на CPU
 
             # Генерация "тика" после времени ожидания
-            self.generated_number.emit(round(random.randint(0, 9)), round(random.randint(0, 9)))  # Пример, можете заменить на свою логику
+            self.generated_number.emit(round(random.randint(0, 9)),
+                                       round(random.randint(0, 9)))  # Пример, можете заменить на свою логику
             # print(f"Tick with tick_time: {self.tick_time}")
 
     def stop(self):

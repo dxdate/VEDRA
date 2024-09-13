@@ -28,7 +28,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Ведра пока без лампы( А еще рома гей</string>
+   <string>Ведра уже с лампой) А еще рома гей</string>
   </property>
   <property name="inputMethodHints">
    <set>Qt::ImhNone</set>
@@ -630,7 +630,7 @@
      <x>0</x>
      <y>0</y>
      <width>425</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
