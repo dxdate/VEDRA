@@ -28,7 +28,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>Ведра уже с лампой) А еще рома гей</string>
+   <string>Ведра с лампой</string>
   </property>
   <property name="inputMethodHints">
    <set>Qt::ImhNone</set>

@@ -1,18 +1,317 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>colors</class>
+ <widget class="QWidget" name="colors">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>440</width>
+    <height>490</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>440</width>
+    <height>490</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>440</width>
+    <height>490</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Настройки цвета</string>
   </property>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>17</x>
+     <y>440</y>
+     <width>411</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QPushButton" name="btn_ok">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Ок</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_rand_cols">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Случайные цвета</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="btn_otmena">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>24</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Отмена</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QLabel" name="color_b_1">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>75</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_9">
+   <property name="geometry">
+    <rect>
+     <x>286</x>
+     <y>279</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">padding: 10px;</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_3">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>209</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_4">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>279</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_2">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>145</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_5">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>355</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_6">
+   <property name="geometry">
+    <rect>
+     <x>219</x>
+     <y>75</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_8">
+   <property name="geometry">
+    <rect>
+     <x>219</x>
+     <y>215</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_8">
+   <property name="geometry">
+    <rect>
+     <x>286</x>
+     <y>209</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_5">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>349</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_7">
+   <property name="geometry">
+    <rect>
+     <x>286</x>
+     <y>139</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_6">
+   <property name="geometry">
+    <rect>
+     <x>286</x>
+     <y>69</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_10">
+   <property name="geometry">
+    <rect>
+     <x>219</x>
+     <y>355</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_7">
+   <property name="geometry">
+    <rect>
+     <x>219</x>
+     <y>145</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_4">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>285</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_9">
+   <property name="geometry">
+    <rect>
+     <x>219</x>
+     <y>285</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_10">
+   <property name="geometry">
+    <rect>
+     <x>286</x>
+     <y>349</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="color_b_3">
+   <property name="geometry">
+    <rect>
+     <x>31</x>
+     <y>215</y>
+     <width>47</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>TextLabel</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_2">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>139</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="color_box_1">
+   <property name="geometry">
+    <rect>
+     <x>99</x>
+     <y>69</y>
+     <width>100</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">padding: 10px;</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

@@ -5,10 +5,11 @@ import time
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread
-from PyQt5.QtGui import QIntValidator, QPixmap, QColor
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon
+from PyQt5.QtWidgets import QMainWindow, QWidget
 
 from Buckets import Buckets
+from window_colors import Ui_colors
 from window_main import Ui_MainWindow
 
 config = configparser.ConfigParser()
@@ -16,6 +17,7 @@ config.read("settings.ini")
 colors = []
 for i in range(1, len(config['colors']) + 1):
     colors.append(list(map(int, config['colors'][f'col{i}'].split(', '))))
+# print(colors)
 
 
 def quit_app():
@@ -36,6 +38,12 @@ def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=180):
     return QPixmap.fromImage(image)
 
 
+class Form_Colors(QWidget, Ui_colors):
+    def __init__(self):
+        super().__init__()
+        self.setupUi(self)
+
+
 class Main_window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -44,6 +52,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.flag_start = False
         self.flag_pause = False
         self.Buckets = Buckets()
+        self.Form_colors = Form_Colors()
         self.thread = QThread()
         self.worker = Worker()
         self.flag_end = False
@@ -55,6 +64,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
         self.slider_speed.valueChanged.connect(self.change_speed)
         self.label_speed.textChanged.connect(self.label_speed_check)
+        self.action_colors.triggered.connect(self.open_colors)
         self.action_quit.triggered.connect(quit_app)
         self.button_exit.clicked.connect(quit_app)
         self.button_start.clicked.connect(self.start)
@@ -67,6 +77,10 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def init_app(self):
         self.buckets = []
+        self.color_boxes = [self.Form_colors.color_box_1, self.Form_colors.color_box_2, self.Form_colors.color_box_3,
+                            self.Form_colors.color_box_4, self.Form_colors.color_box_5, self.Form_colors.color_box_6,
+                            self.Form_colors.color_box_7, self.Form_colors.color_box_8, self.Form_colors.color_box_9,
+                            self.Form_colors.color_box_10]
         self.buckets = self.Buckets.generate_buckets()
         self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
                           self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
@@ -81,6 +95,23 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.paint_buckets()
         print(self.buckets)
         self.fill_buckets_text()
+
+    def open_colors(self):
+        self.fill_colors()
+        self.Form_colors.show()
+        self.hide()
+
+    def fill_colors(self):
+        for i in self.color_boxes:
+            for j in colors:
+                # Создание QPixmap
+                pixmap = QPixmap(30, 30)
+                # Заполнение пиксмапа цветом
+                pixmap.fill(QColor(j[0], j[1], j[2]))
+                # Добавление элемента с иконкой и текстом
+                i.addItem(QIcon(pixmap), '')
+        # self.Form_colors.color_box_1.addItem(
+        #     recolor_image(QPixmap('images/color_shower.png'), tolerance=50, target_color=colors[0]))
 
     def fill_buckets_text(self):
         for k in range(len(self.buckets)):
