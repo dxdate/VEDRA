@@ -17,7 +17,7 @@ config.read("settings.ini")
 colors = []
 for i in range(1, len(config['colors']) + 1):
     colors.append(list(map(int, config['colors'][f'col{i}'].split(', '))))
-# print(colors)
+aval_colors = colors
 
 
 def quit_app():
@@ -39,9 +39,68 @@ def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=180):
 
 
 class Form_Colors(QWidget, Ui_colors):
-    def __init__(self):
+    def __init__(self, main_window):
         super().__init__()
         self.setupUi(self)
+        self.main_window = main_window  # ссылка на главное окно
+        self.color_boxes = [self.color_box_1, self.color_box_2, self.color_box_3,
+                            self.color_box_4, self.color_box_5, self.color_box_6,
+                            self.color_box_7, self.color_box_8, self.color_box_9,
+                            self.color_box_10]
+
+        # Хранение предыдущего выбора цветов для каждого ведра
+        self.previous_colors = self.main_window.cur_colors.copy()
+
+        self.btn_ok.clicked.connect(self.apply_colors)  # Применить цвета и закрыть окно
+
+        # Подключаем обработчики изменения каждого комбо бокса
+        for i, combo_box in enumerate(self.color_boxes):
+            combo_box.currentIndexChanged.connect(lambda _, i=i: self.color_changed(i))
+
+    def color_changed(self, index):
+        """Обработчик изменения цвета в комбо боксе"""
+        current_color = list(map(int, self.color_boxes[index].currentText().split()))  # Новый выбранный цвет
+        previous_color = self.previous_colors[index]  # Предыдущий цвет
+
+        # Обновляем список предыдущих цветов
+        self.previous_colors[index] = current_color
+
+        # Обновляем доступные цвета для всех комбо боксов
+        self.update_color_boxes()
+
+    def apply_colors(self):
+        # Применяем новые цвета ведер из комбо боксов
+        new_colors = []
+        for i in range(len(self.color_boxes)):
+            color_text = self.color_boxes[i].currentText().split()
+            new_colors.append(list(map(int, color_text)))
+
+        # Устанавливаем новые цвета в главное окно
+        self.main_window.cur_colors = new_colors
+        self.main_window.paint_buckets()  # Перекрасить ведра
+
+        # Закрываем окно после применения цветов
+        self.main_window.show()
+        self.close()
+
+    def update_color_boxes(self):
+        """Обновляем комбо боксы, чтобы отображать только доступные цвета"""
+        used_colors = self.previous_colors[:]  # Используемые цвета
+
+        for i, combo_box in enumerate(self.color_boxes):
+            current_color = self.previous_colors[i]  # Текущий выбранный цвет в этом комбо боксе
+            combo_box.blockSignals(True)  # Отключаем сигналы, чтобы избежать повторных срабатываний
+
+            # Очищаем текущий комбо бокс и добавляем текущий цвет ведра и все доступные
+            combo_box.clear()
+            combo_box.addItem(f'{current_color[0]} {current_color[1]} {current_color[2]}')
+
+            # Добавляем все цвета, кроме уже использованных другими комбо боксами
+            for color in colors:
+                if color not in used_colors or color == current_color:
+                    combo_box.addItem(f'{color[0]} {color[1]} {color[2]}')
+
+            combo_box.blockSignals(False)  # Включаем сигналы обратно
 
 
 class Main_window(QMainWindow, Ui_MainWindow):
@@ -52,7 +111,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.flag_start = False
         self.flag_pause = False
         self.Buckets = Buckets()
-        self.Form_colors = Form_Colors()
+
+        # Инициализация уникальных цветов для ведер
+        self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
+
+        self.Form_colors = Form_Colors(self)  # Теперь можно безопасно инициализировать Form_Colors
+
         self.thread = QThread()
         self.worker = Worker()
         self.flag_end = False
@@ -61,6 +125,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.current_speed = self.slider_speed.value()
         self.label_speed.setValidator(QIntValidator(0, 100, self))
         self.label_speed.setText(str(self.current_speed))
+        self.color_boxes = [self.Form_colors.color_box_1, self.Form_colors.color_box_2, self.Form_colors.color_box_3,
+                            self.Form_colors.color_box_4, self.Form_colors.color_box_5, self.Form_colors.color_box_6,
+                            self.Form_colors.color_box_7, self.Form_colors.color_box_8, self.Form_colors.color_box_9,
+                            self.Form_colors.color_box_10]
+
+        self.Form_colors.btn_ok.clicked.connect(self.fc_ok)
 
         self.slider_speed.valueChanged.connect(self.change_speed)
         self.label_speed.textChanged.connect(self.label_speed_check)
@@ -75,12 +145,14 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.Buckets.tick_time = self.Buckets.calculate_tick_time()
         self.change_speed()
 
+    def fc_ok(self):
+        # При нажатии на ОК в окне выбора цветов
+        self.Form_colors.apply_colors()
+
     def init_app(self):
         self.buckets = []
-        self.color_boxes = [self.Form_colors.color_box_1, self.Form_colors.color_box_2, self.Form_colors.color_box_3,
-                            self.Form_colors.color_box_4, self.Form_colors.color_box_5, self.Form_colors.color_box_6,
-                            self.Form_colors.color_box_7, self.Form_colors.color_box_8, self.Form_colors.color_box_9,
-                            self.Form_colors.color_box_10]
+
+        # В этом месте `cur_colors` уже инициализирован и готов к использованию
         self.buckets = self.Buckets.generate_buckets()
         self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
                           self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
@@ -93,25 +165,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.buckets_l[i].show()
             self.label_buckets_l[i].show()
         self.paint_buckets()
-        print(self.buckets)
         self.fill_buckets_text()
 
     def open_colors(self):
-        self.fill_colors()
+        self.Form_colors.update_color_boxes()  # Обновляем комбо боксы перед открытием окна
         self.Form_colors.show()
         self.hide()
-
-    def fill_colors(self):
-        for i in self.color_boxes:
-            for j in colors:
-                # Создание QPixmap
-                pixmap = QPixmap(30, 30)
-                # Заполнение пиксмапа цветом
-                pixmap.fill(QColor(j[0], j[1], j[2]))
-                # Добавление элемента с иконкой и текстом
-                i.addItem(QIcon(pixmap), '')
-        # self.Form_colors.color_box_1.addItem(
-        #     recolor_image(QPixmap('images/color_shower.png'), tolerance=50, target_color=colors[0]))
 
     def fill_buckets_text(self):
         for k in range(len(self.buckets)):
@@ -119,7 +178,11 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def paint_buckets(self):
         for k in range(10):
-            self.buckets_l[k].setPixmap(recolor_image(self.buckets_l[k].pixmap(), target_color=colors[k]))
+            self.buckets_l[k].setPixmap(recolor_image(self.buckets_l[k].pixmap(), target_color=self.cur_colors[k]))
+
+    # Остальные функции остаются без изменений...
+
+    # Остальные функции остаются без изменений...
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
