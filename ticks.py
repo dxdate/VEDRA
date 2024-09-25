@@ -1,35 +1,31 @@
-import sys
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QComboBox, QMainWindow, QVBoxLayout, QWidget
-from PyQt5.QtGui import QIcon, QPixmap, QColor
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
+class Form_liters(QWidget, Ui_liters_form):
+    def __init__(self, main_window):
         super().__init__()
+        self.setupUi(self)
 
-        # Создание QComboBox
-        self.combo_box = QComboBox()
+        self.main_window = main_window  # Ссылка на главное окно
+        self.liter_boxes = [self.liters_bucket_1, self.liters_bucket_2, self.liters_bucket_3, self.liters_bucket_4,
+                            self.liters_bucket_5, self.liters_bucket_6, self.liters_bucket_7, self.liters_bucket_8,
+                            self.liters_bucket_9, self.liters_bucket_10]
+        self.liters = []
 
-        # Создание QPixmap
-        pixmap = QPixmap(32, 32)  # Задаём размер изображения
-        pixmap.fill(QColor(Qt.blue))  # Заполняем изображение синим цветом
+        # Хранение предыдущего выбора цветов для каждого ведра
+        self.previous_colors = self.main_window.cur_colors.copy()
 
-        # Преобразование QPixmap в QIcon
-        icon = QIcon(pixmap)
+        self.btn_ok.clicked.connect(self.apply_liters)  # Применить цвета и закрыть окно
+        self.btn_otmena.clicked.connect(self.cancel)  # Кнопка отмены
+        self.btn_rand_liters.clicked.connect(self.assign_random_liters)
 
-        # Добавление элемента с текстом и иконкой
-        self.combo_box.addItem(icon, "Синий")
+    # Случайные цвета
 
-        # Основной виджет
-        central_widget = QWidget()
-        layout = QVBoxLayout(central_widget)
-        layout.addWidget(self.combo_box)
-        self.setCentralWidget(central_widget)
+    def apply_liters(self):
+        self.liters.clear()
+        for i in range(10):
+            self.liters.append([i, self.liter_boxes[i].value()])
+        print(self.liters)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-    sys.exit(app.exec_())
+
+    def cancel(self):
+        self.main_window.show()  # Показываем главное окно
+        self.close()  # Закрываем текущее окно

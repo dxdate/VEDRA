@@ -646,6 +646,7 @@
      <string>Настройки</string>
     </property>
     <addaction name="action_colors"/>
+    <addaction name="action_liters"/>
    </widget>
    <widget class="QMenu" name="menu_4">
     <property name="title">
@@ -696,6 +697,11 @@
   <action name="action_2">
    <property name="text">
     <string>Об авторе</string>
+   </property>
+  </action>
+  <action name="action_liters">
+   <property name="text">
+    <string>Заполнение ведер</string>
    </property>
   </action>
  </widget>

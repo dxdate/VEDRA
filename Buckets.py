@@ -1,6 +1,6 @@
 class Buckets:
     def __init__(self):
-        self.start_liters = 1
+        self.start_liters = []
         self.speed = 0
         self.zero_speed_time = 300_000
         self.max_speed_time = 1
