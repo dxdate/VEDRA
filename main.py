@@ -8,8 +8,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
 from PyQt5.QtWidgets import QMainWindow, QWidget
-
-from main_n import current_bucket_liters
 from window_colors import Ui_colors
 from window_main import Ui_MainWindow
 from  window_liters import  Ui_liters_form
@@ -20,15 +18,9 @@ colors = []
 for i in range(1, len(config['colors']) + 1):
     colors.append(list(map(int, config['colors'][f'col{i}'].split(', '))))
 aval_colors = colors
-buckets_liters = []
+default_buckets = []
 for i in range(1, len(config['buckets']) + 1):
-    buckets_liters.append([i-1, int(config['buckets'][f'bucket{i}'])])
-
-current_bucket_liters = buckets_liters[:]
-# current_bucket_liters = buckets_liters.copy()
-# current_bucket_liters = []
-
-
+    default_buckets.append([i-1, int(config['buckets'][f'bucket{i}'])])
 
 def quit_app():
     sys.exit(0)
@@ -47,39 +39,6 @@ def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=255):
                 new_color = QColor(target_color[0], target_color[1], target_color[2])
                 image.setPixel(x, y, new_color.rgb())
     return QPixmap.fromImage(image)
-
-
-class Buckets:
-    def __init__(self):
-        self.speed = 0
-        self.zero_speed_time = 300_000
-        self.max_speed_time = 1
-        self.tick_time = 0
-
-    def generate_buckets(self):
-        self.buckets = buckets_liters[:]
-        return self.buckets
-
-    def calculate_tick_time(self):
-        return int(self.zero_speed_time / (1 + (self.speed / 10) ** 4))
-
-    def add_water_to_bucket(self, bucket_i):
-        self.buckets[bucket_i][1] += 1
-        return self.buckets
-
-    def remove_water_from_bucket(self, bucket_i):
-        self.buckets[bucket_i][1] -= 1
-        return self.buckets
-
-    def check_bucket_full(self, bucket_i):
-        if self.buckets[bucket_i][1] >= 10:
-            return False
-        return True
-
-    def check_bucket_empty(self, bucket_i):
-        if self.buckets[bucket_i][1] == 0:
-            return True
-        return False
 
 
 class Form_Colors(QWidget, Ui_colors):
@@ -187,6 +146,7 @@ class Form_liters(QWidget, Ui_liters_form):
         self.liter_boxes = [self.liters_bucket_1, self.liters_bucket_2, self.liters_bucket_3, self.liters_bucket_4,
                             self.liters_bucket_5, self.liters_bucket_6, self.liters_bucket_7, self.liters_bucket_8,
                             self.liters_bucket_9, self.liters_bucket_10]
+        self.liters = []
 
         # Заполняем форму с настройками значениями из buckets_liters при первом запуске
         self.fill_liters_form()
@@ -196,19 +156,18 @@ class Form_liters(QWidget, Ui_liters_form):
 
     def fill_liters_form(self):
         """Заполняет форму с литрами значениями из buckets_liters"""
-        for i in range(len(buckets_liters)):
-            self.liter_boxes[i].setValue(buckets_liters[i][1])  # Устанавливаем значения из начальных настроек
+        for i in range(len(default_buckets)):
+            self.liter_boxes[i].setValue(default_buckets[i][1])  # Устанавливаем значения из начальных настроек
 
     def apply_liters(self):
         """Применить настройки литров для ведер"""
-        global current_bucket_liters  # Используем глобальную переменную для текущего состояния ведер
+ # Используем глобальную переменную для текущего состояния ведер # Используем глобальную переменную для текущего состояния ведер
         for i in range(10):
             # Обновляем текущие значения ведер на основе введенных данных
             new_value = self.liter_boxes[i].value()
-            buckets_liters[i][1] = new_value  # Обновляем глобальные настройки ведер
-            current_bucket_liters[i][1] = new_value  # Обновляем текущее состояние ведер
-
-        print(f"New bucket liters applied: {current_bucket_liters}")  # Debug output
+            default_buckets[i][1] = new_value  # Обновляем глобальные настройки ведер
+ # Обновляем текущее состояние ведер
+# Debug output
         self.main_window.update_buckets_liters()  # Обновляем ведра в основном окне
         self.main_window.show()  # Показываем главное окно
         self.close()  # Закрываем окно с настройками
@@ -220,15 +179,18 @@ class Form_liters(QWidget, Ui_liters_form):
         self.close()  # Закрываем текущее окно
 
 
-
 class Main_window(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         self.setupUi(self)
-
         self.flag_start = False
         self.flag_pause = False
-        self.Buckets = Buckets()
+        self.default_buckets = copy.deepcopy(default_buckets)
+        self.speed = 0
+        self.zero_speed_time = 300_000
+        self.max_speed_time = 1
+        self.buckets = []
+        self.tick_time = 0
 
         # Инициализация уникальных цветов для ведер
         self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
@@ -257,22 +219,37 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.button_pause.clicked.connect(self.pause)
         self.worker.generated_number.connect(self.test)
         self.init_app()
-        self.Buckets.speed = self.current_speed
-        self.Buckets.tick_time = self.Buckets.calculate_tick_time()
+        self.speed = self.current_speed
+        self.tick_time = self.calculate_tick_time()
         self.change_speed()
 
-    def update_buckets_liters(self):
-        """Обновление текущих данных ведер на основе переменной current_bucket_liters"""
-        self.buckets = current_bucket_liters[:]  # Копируем текущие данные ведер
-        self.fill_buckets_text()
+    def generate_buckets(self):
+        self.buckets = copy.deepcopy(default_buckets)
+        return self.buckets
 
-    # Остальные функции остаются без изменений...
+    def calculate_tick_time(self):
+        return int(self.zero_speed_time / (1 + (self.speed / 10) ** 4))
 
+    def add_water_to_bucket(self, bucket_i):
+        self.buckets[bucket_i][1] += 1
+        return self.buckets
+
+    def remove_water_from_bucket(self, bucket_i):
+        self.buckets[bucket_i][1] -= 1
+        return self.buckets
+
+    def check_bucket_full(self, bucket_i):
+        if self.buckets[bucket_i][1] == 10:
+            return False
+        return True
+
+    def check_bucket_empty(self, bucket_i):
+        if self.buckets[bucket_i][1] == 0:
+            return True
+        return False
 
     def open_liters(self):
-        """Открыть окно настройки литров"""
         if self.flag_start: self.start()
-        self.Form_liters.fill_liters_form()  # Обновляем значения в форме перед открытием
         self.Form_liters.show()
         self.hide()
 
@@ -282,9 +259,9 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def init_app(self):
 
-
         # В этом месте `cur_colors` уже инициализирован и готов к использованию
-        self.buckets = self.Buckets.generate_buckets()
+        self.buckets = self.generate_buckets()
+        print(self.buckets)
         self.buckets_l = [self.bucket_1, self.bucket_2, self.bucket_3,
                           self.bucket_4, self.bucket_5, self.bucket_6, self.bucket_7,
                           self.bucket_8, self.bucket_9, self.bucket_10]
@@ -305,7 +282,6 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.hide()
 
     def fill_buckets_text(self):
-        """Заполнение текстовой информации о ведрах"""
         for k in range(len(self.buckets)):
             self.label_buckets_l[k].setText(f"  Bucket: {self.buckets[k][0]}\n  Liters: {self.buckets[k][1]}")
 
@@ -331,37 +307,36 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
             # Удаляем данные ведра
             del self.buckets[bucket_i]
-            # del self.cur_colors[bucket_i]  # Ensure colors list stays in sync
+  # Ensure colors list stays in sync
             print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
     def test(self, num, bad_num):
-        print(num, bad_num)
         if not len(self.buckets) == 0:
             if self.flag_start:
                 if random.random() <= self.bad_num_chance:
                     if bad_num == num:
                         self.label_bad_num.setText(f"Аварийная лампа! Ведра сопадают, пропускаем!")
-                    elif self.Buckets.check_bucket_empty(bad_num % len(self.buckets)):
+                    elif self.check_bucket_empty(bad_num % len(self.buckets)):
                         self.label_bad_num.setText(f"Аварийная лампа! Ведро пустое, пропускаем!")
                         self.label_generated_number.setText(
                             f"Gen num: {str(num)}  Buc i: {str((num) % len(self.buckets))}")
-                        self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                        self.add_water_to_bucket(num % len(self.buckets))
                     else:
                         # print(self.buckets)
                         # print(bad_num, len(self.buckets), f"Аварийная лампа! Из ведра {str((bad_num) % len(self.buckets))} выбежал литр(")
                         self.label_bad_num.setText(
                             f"Аварийная лампа! Из ведра {str((bad_num) % len(self.buckets))} выбежал литр(")
-                        self.Buckets.remove_water_from_bucket(bad_num % len(self.buckets))
+                        self.remove_water_from_bucket(bad_num % len(self.buckets))
                         self.label_generated_number.setText(
                             f"Gen: {str(num)}  Добавили в ведро: {str((num) % len(self.buckets))}")
-                        self.Buckets.add_water_to_bucket(num % len(self.buckets))
+                        self.add_water_to_bucket(num % len(self.buckets))
                         # print(self.buckets)
                 else:
                     self.label_bad_num.setText(f"Все работает без ошибок:)")
                     self.label_generated_number.setText(
                         f"Gen: {str(num)}  Добавили в ведро: {str((num) % len(self.buckets))}")
-                    self.Buckets.add_water_to_bucket(num % len(self.buckets))
-            if not self.Buckets.check_bucket_full(num % len(self.buckets)):
+                    self.add_water_to_bucket(num % len(self.buckets))
+            if not self.check_bucket_full(num % len(self.buckets)):
                 self.hide_bucket(num % len(self.buckets))
             self.fill_buckets_text()
             # print(self.buckets, num, bad_num)
@@ -379,12 +354,11 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.button_start.setText('Стоп')
             self.button_pause.setEnabled(True)
             self.worker.stop_signal(True)
-            self.worker.update_params(self.Buckets.tick_time)
+            self.worker.update_params(self.tick_time)
             self.worker.start()
 
     def stop(self):  # сбрасывать ведра на НУ !доделать!
         self.worker.stop_signal(False)
-        # time.sleep(1)
         self.flag_start = False
         self.label_generated_number.setText('')
         self.label_bad_num.setText('')
@@ -410,10 +384,10 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def change_speed(self):
         self.current_speed = self.slider_speed.value()
         self.label_speed.setText(str(self.current_speed))
-        self.Buckets.speed = self.current_speed
-        self.Buckets.tick_time = self.Buckets.calculate_tick_time()
-        self.label_tick_time.setText(str(self.Buckets.tick_time))
-        self.worker.update_params(self.Buckets.tick_time)
+        self.speed = self.current_speed
+        self.tick_time = self.calculate_tick_time()
+        self.label_tick_time.setText(str(self.tick_time))
+        self.worker.update_params(self.tick_time)
 
     def label_speed_check(self):
         try:
