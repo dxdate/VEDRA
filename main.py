@@ -3,7 +3,7 @@ import random
 import sys
 import time
 import copy
-
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
@@ -143,6 +143,7 @@ class Form_liters(QWidget, Ui_liters_form):
         self.setupUi(self)
 
         self.main_window = main_window  # Ссылка на главное окно
+        self.change_chance()
         self.liter_boxes = [self.liters_bucket_1, self.liters_bucket_2, self.liters_bucket_3, self.liters_bucket_4,
                             self.liters_bucket_5, self.liters_bucket_6, self.liters_bucket_7, self.liters_bucket_8,
                             self.liters_bucket_9, self.liters_bucket_10]
@@ -150,9 +151,20 @@ class Form_liters(QWidget, Ui_liters_form):
 
         # Заполняем форму с настройками значениями из buckets_liters при первом запуске
         self.fill_liters_form()
-
+        self.btn_rand_liters.clicked.connect(self.set_random_liters)
         self.btn_ok.clicked.connect(self.apply_liters)  # Применить новые литры и закрыть форму
-        self.btn_otmena.clicked.connect(self.cancel)  # Отмена изменений
+        self.btn_otmena.clicked.connect(self.cancel)
+        self.horizontalSlider.valueChanged.connect(self.change_chance)
+
+    def set_random_liters(self):
+        """Назначаем случайные значения литров для каждого ведра"""
+        for i in range(len(self.liter_boxes)):
+            random_liters = random.randint(0, 10)  # Генерируем случайное количество литров от 0 до 10
+            self.liter_boxes[i].setValue(random_liters)
+
+    def change_chance(self):
+        self.main_window.bad_num_chance = self.horizontalSlider.value() / 100
+        self.label.setText(f"Шанс на аварийную лампочку: {self.main_window.bad_num_chance}")
 
     def fill_liters_form(self):
         """Заполняет форму с литрами значениями из buckets_liters"""
@@ -225,9 +237,10 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def update_buckets_liters(self):
         """Обновить отображение ведер на основе их текущих значений"""
+
         self.buckets = copy.deepcopy(default_buckets)  # Копируем обновленные данные из глобальных настроек
         self.fill_buckets_text()  # Обновляем текстовое отображение
-        self.paint_buckets()  # Обновляем изображение ведер
+        self.paint_buckets()
 
     def generate_buckets(self):
         self.buckets = copy.deepcopy(default_buckets)
@@ -245,7 +258,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         return self.buckets
 
     def check_bucket_full(self, bucket_i):
-        if self.buckets[bucket_i][1] == 10:
+        if self.buckets[bucket_i][1] >= 10:
             return False
         return True
 
@@ -349,7 +362,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         elif not self.flag_end:
             self.flag_end = True
             # self.start()
-            self.label_generated_number.setText(f"Ведра заполнены!")
+            self.label_generated_number.setText(f"Ведра заполнены! Нажмите 'СТОП' для перезапуска!")
             self.label_bad_num.setText(f"")
 
     def start(self):
