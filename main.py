@@ -161,14 +161,14 @@ class Form_liters(QWidget, Ui_liters_form):
 
     def apply_liters(self):
         """Применить настройки литров для ведер"""
- # Используем глобальную переменную для текущего состояния ведер # Используем глобальную переменную для текущего состояния ведер
-        for i in range(10):
-            # Обновляем текущие значения ведер на основе введенных данных
+        # Обновляем текущие значения ведер на основе введенных данных
+        for i in range(len(self.liter_boxes)):
             new_value = self.liter_boxes[i].value()
             default_buckets[i][1] = new_value  # Обновляем глобальные настройки ведер
- # Обновляем текущее состояние ведер
-# Debug output
-        self.main_window.update_buckets_liters()  # Обновляем ведра в основном окне
+
+        # Обновляем ведра в основном окне
+        self.main_window.update_buckets_liters()  # Обновляем отображение ведер
+
         self.main_window.show()  # Показываем главное окно
         self.close()  # Закрываем окно с настройками
 
@@ -222,6 +222,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.speed = self.current_speed
         self.tick_time = self.calculate_tick_time()
         self.change_speed()
+
+    def update_buckets_liters(self):
+        """Обновить отображение ведер на основе их текущих значений"""
+        self.buckets = copy.deepcopy(default_buckets)  # Копируем обновленные данные из глобальных настроек
+        self.fill_buckets_text()  # Обновляем текстовое отображение
+        self.paint_buckets()  # Обновляем изображение ведер
 
     def generate_buckets(self):
         self.buckets = copy.deepcopy(default_buckets)
