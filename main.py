@@ -7,8 +7,6 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
 from PyQt5.QtWidgets import QMainWindow, QWidget
-
-from Buckets import Buckets
 from window_colors import Ui_colors
 from window_main import Ui_MainWindow
 from  window_liters import  Ui_liters_form
@@ -19,7 +17,9 @@ colors = []
 for i in range(1, len(config['colors']) + 1):
     colors.append(list(map(int, config['colors'][f'col{i}'].split(', '))))
 aval_colors = colors
-
+buckets_liters = []
+for i in range(1, len(config['buckets']) + 1):
+    buckets_liters.append([i, int(config['buckets'][f'bucket{i}'])])
 
 def quit_app():
     sys.exit(0)
@@ -40,6 +40,42 @@ def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=255):
     return QPixmap.fromImage(image)
 
 from PyQt5.QtGui import QPixmap, QIcon, QBrush
+
+class Buckets:
+    def __init__(self):
+        self.start_liters = []
+        self.speed = 0
+        self.zero_speed_time = 300_000
+        self.max_speed_time = 1
+        self.buckets = []
+        self.tick_time = 0
+
+    def generate_buckets(self):
+        self.buckets = []
+        for i in range(10):
+            self.buckets.append([i, self.start_liters])
+        return self.buckets
+
+    def calculate_tick_time(self):
+        return int(self.zero_speed_time / (1 + (self.speed / 10) ** 4))
+
+    def add_water_to_bucket(self, bucket_i):
+        self.buckets[bucket_i][1] += 1
+        return self.buckets
+
+    def remove_water_from_bucket(self, bucket_i):
+        self.buckets[bucket_i][1] -= 1
+        return self.buckets
+
+    def check_bucket_full(self, bucket_i):
+        if self.buckets[bucket_i][1] == 10:
+            return False
+        return True
+
+    def check_bucket_empty(self, bucket_i):
+        if self.buckets[bucket_i][1] == 0:
+            return True
+        return False
 
 
 class Form_Colors(QWidget, Ui_colors):
