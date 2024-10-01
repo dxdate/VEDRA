@@ -19,7 +19,7 @@ for i in range(1, len(config['colors']) + 1):
 aval_colors = colors
 buckets_liters = []
 for i in range(1, len(config['buckets']) + 1):
-    buckets_liters.append([i, int(config['buckets'][f'bucket{i}'])])
+    buckets_liters.append([i - 1, int(config['buckets'][f'bucket{i}'])])
 
 def quit_app():
     sys.exit(0)
