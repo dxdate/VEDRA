@@ -436,40 +436,39 @@ class Main_window(QMainWindow, Ui_MainWindow):
             print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
     def test(self, num, bad_num):
-        if not len(self.buckets) == 0:
+        if self.buckets:  # Проверяем, что ведра не пустые
             if self.flag_start:
                 if random.random() <= self.bad_num_chance:
-                    if bad_num == num:
-                        self.label_bad_num.setText(f"Аварийная лампа! Ведра сопадают, пропускаем!")
+                    if bad_num % len(self.buckets) == num % len(self.buckets):
+                        self.label_bad_num.setText("Аварийная лампа! Ведра совпадают, заливаем литр!")
+                        self.add_water_to_bucket(num % len(self.buckets))
                     elif self.check_bucket_empty(bad_num % len(self.buckets)):
-                        self.label_bad_num.setText(f"Аварийная лампа! Ведро пустое, пропускаем!")
+                        self.label_bad_num.setText("Аварийная лампа! Ведро пустое, пропускаем!")
                         self.label_generated_number.setText(
-                            f"Gen num: {str(num)}  Buc i: {str((num) % len(self.buckets))}")
+                            f"Gen num: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
                     else:
-                        # print(self.buckets)
-                        # print(bad_num, len(self.buckets), f"Аварийная лампа! Из ведра {str((bad_num) % len(self.buckets))} выбежал литр(")
                         self.label_bad_num.setText(
-                            f"Аварийная лампа! Из ведра {str((bad_num) % len(self.buckets))} выбежал литр(")
+                            f"Аварийная лампа! Из ведра {str(bad_num % len(self.buckets))} выбежал литр(")
                         self.remove_water_from_bucket(bad_num % len(self.buckets))
                         self.label_generated_number.setText(
-                            f"Gen: {str(num)}  Добавили в ведро: {str((num) % len(self.buckets))}")
+                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
-                        # print(self.buckets)
                 else:
-                    self.label_bad_num.setText(f"Все работает без ошибок:)")
+                    self.label_bad_num.setText("Все работает без ошибок :)")
                     self.label_generated_number.setText(
-                        f"Gen: {str(num)}  Добавили в ведро: {str((num) % len(self.buckets))}")
+                        f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                     self.add_water_to_bucket(num % len(self.buckets))
-            if not self.check_bucket_full(num % len(self.buckets)):
-                self.hide_bucket(num % len(self.buckets))
-            self.fill_buckets_text()
-            # print(self.buckets, num, bad_num)
+
+                if not self.check_bucket_full(num % len(self.buckets)):
+                    self.hide_bucket(num % len(self.buckets))
+
+                self.fill_buckets_text()
+
         elif not self.flag_end:
             self.flag_end = True
-            # self.start()
-            self.label_generated_number.setText(f"Ведра заполнены! Нажмите 'СТОП' для перезапуска!")
-            self.label_bad_num.setText(f"")
+            self.label_generated_number.setText("Ведра заполнены! Нажмите 'СТОП' для перезапуска!")
+            self.label_bad_num.setText("")
 
     def start(self):
         if self.flag_start:
@@ -489,6 +488,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def stop(self):  # сбрасывать ведра на НУ !доделать!
         self.worker.stop_signal(False)
         self.flag_start = False
+        self.flag_end= False
         self.label_generated_number.setText('')
         self.label_bad_num.setText('')
         self.button_start.setText('Старт')
