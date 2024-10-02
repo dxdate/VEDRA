@@ -3,7 +3,7 @@ import random
 import sys
 import time
 import copy
-from PyQt5.QtWidgets import QMessageBox, QFileDialog, QGraphicsOpacityEffect
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QGraphicsOpacityEffect, QGraphicsColorizeEffect
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt, QPropertyAnimation, QPoint, QEasingCurve
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
@@ -430,18 +430,19 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def shake_bucket(self, index):
         bucket = self.buckets_l[index]  # Получаем ведро по индексу
 
-        # Создаем эффект прозрачности
-        opacity_effect = QGraphicsOpacityEffect(bucket)
-        bucket.setGraphicsEffect(opacity_effect)
+        # Создаем эффект цветового окрашивания
+        color_effect = QGraphicsColorizeEffect(bucket)
+        bucket.setGraphicsEffect(color_effect)
 
-        # Создаем анимацию изменения прозрачности
-        self.opacity_animation = QPropertyAnimation(opacity_effect, b"opacity")
-        self.opacity_animation.setDuration(self.shake_duration)  # Длительность анимации
-        self.opacity_animation.setStartValue(1.0)  # Начальная прозрачность (100%)
-        self.opacity_animation.setKeyValueAt(0.5, 0.4)  # Прозрачность до 40% на середине анимации
-        self.opacity_animation.setEndValue(1.0)  # Возвращаем прозрачность обратно до 100%
+        # Создаем анимацию изменения цвета
+        self.color_animation = QPropertyAnimation(color_effect, b"color")
+        self.color_animation.setDuration(self.shake_duration)  # Длительность анимации
+        self.color_animation.setStartValue(QColor(0, 0, 255, 0))  # Начальный цвет (прозрачный синий)
+        self.color_animation.setKeyValueAt(0.5, QColor(0, 0, 255, 150))  # Полупрозрачный синий цвет
+        self.color_animation.setEndValue(QColor(0, 0, 255, 0))  # Возвращаем обратно к прозрачному синему
 
-        self.opacity_animation.start()
+        # Создаем анимацию для эффекта цветового окрашивания
+        self.color_animation.start()  # Запуск анимации
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
@@ -468,14 +469,14 @@ class Main_window(QMainWindow, Ui_MainWindow):
                     elif self.check_bucket_empty(bad_num % len(self.buckets)):
                         self.label_bad_num.setText("Аварийная лампа! Ведро пустое, пропускаем!")
                         self.label_generated_number.setText(
-                            f"Gen num: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
                     else:
                         self.label_bad_num.setText(
                             f"Аварийная лампа! Из ведра {str(bad_num % len(self.buckets))} выбежал литр(")
                         self.remove_water_from_bucket(bad_num % len(self.buckets))
                         self.label_generated_number.setText(
-                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                            f"Gen: {str(num)} Av: {str(bad_num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
                     self.shake_bucket(num % len(self.buckets))
                 else:

@@ -300,8 +300,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.buckets = []
         self.tick_time = 0
 
-        self.shake_duration = 100
-        self.shake_amount = 3  # Сколько пикселей будет смещение при покачивании
+        self.shake_duration = 200
 
         # Инициализация уникальных цветов для ведер
         self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
