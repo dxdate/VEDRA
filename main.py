@@ -5,7 +5,7 @@ import time
 import copy
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QGraphicsOpacityEffect
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt, QPropertyAnimation, QPoint, QEasingCurve
+from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt, QPropertyAnimation, QPoint, QEasingCurve, QTimer
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
 from PyQt5.QtWidgets import QMainWindow, QWidget
 from window_colors import Ui_colors
@@ -97,7 +97,7 @@ def read_custom_settings():
                     except (SyntaxError, ValueError) as e:
                         raise ValueError(f"Ошибка при обработке ведер: {line}. {str(e)}")
 
-            print(default_colors, default_liters, speed, bad_chance)
+            # print(default_colors, default_liters, speed, bad_chance)
             return default_colors, default_liters, speed, bad_chance
 
 
@@ -170,7 +170,7 @@ class Form_Colors(QWidget, Ui_colors):
         """Обработчик изменения цвета в комбо боксе"""
         current_color = list(map(int, self.color_boxes[index].currentText().split()))  # Новый выбранный цвет
         self.previous_colors[index] = current_color  # Обновляем цвет в списке выбранных
-        print(f"ComboBox {index}: Selected color {current_color}")  # Debug output
+        # print(f"ComboBox {index}: Selected color {current_color}")  # Debug output
         self.update_color_boxes()  # Обновляем все комбобоксы
 
     def apply_colors(self):
@@ -180,7 +180,7 @@ class Form_Colors(QWidget, Ui_colors):
             color_text = self.color_boxes[i].currentText().split()
             new_colors.append(list(map(int, color_text)))
 
-        print(f"Applying colors: {new_colors}")  # Debug output
+        # print(f"Applying colors: {new_colors}")  # Debug output
 
         # Устанавливаем новые цвета в главное окно
         self.main_window.cur_colors = new_colors
@@ -192,7 +192,7 @@ class Form_Colors(QWidget, Ui_colors):
 
     def cancel_colors(self):
         """Отмена и возврат к предыдущим цветам"""
-        print("Color selection canceled.")  # Debug output
+        # print("Color selection canceled.")  # Debug output
         self.main_window.cur_colors = self.previous_colors.copy()
         self.main_window.paint_buckets()  # Вернуть предыдущие цвета ведер
         self.main_window.show()  # Показываем главное окно
@@ -230,7 +230,7 @@ class Form_Colors(QWidget, Ui_colors):
 
         # Обновляем комбо боксы, чтобы учесть изменения
         self.update_color_boxes()
-        print(f"Random colors assigned: {self.previous_colors}")  # Debug output
+        # print(f"Random colors assigned: {self.previous_colors}")  # Debug output
 
 
 class Form_liters(QWidget, Ui_liters_form):
@@ -282,7 +282,7 @@ class Form_liters(QWidget, Ui_liters_form):
 
     def cancel(self):
         """Отмена изменений, возврат в главное окно"""
-        print("Liters adjustment canceled.")  # Debug output
+        # print("Liters adjustment canceled.")  # Debug output
         self.main_window.show()  # Показываем главное окно
         self.close()  # Закрываем текущее окно
 
@@ -300,7 +300,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.buckets = []
         self.tick_time = 0
 
-        self.shake_duration = 200
+        self.shake_duration = 100
 
         # Инициализация уникальных цветов для ведер
         self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
@@ -342,7 +342,8 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def open_settings(self):
         """Открывает файл с настройками и загружает данные."""
         colors, liters, speed, bad_chance = read_custom_settings()
-        if colors and liters and speed and bad_chance:
+        # print(colors and liters and speed and bad_chance)
+        if colors and liters and speed+1 and bad_chance+1:
             self.cur_colors = colors
             self.speed = speed
             self.bad_num_chance = bad_chance / 100  # Присваиваем цветам из файла
@@ -387,6 +388,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def open_liters(self):
         if self.flag_start: self.start()
         self.Form_liters.show()
+        self.Form_liters.fill_liters_form()
         self.hide()
 
     def fc_ok(self):
@@ -418,29 +420,32 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def fill_buckets_text(self):
         for k in range(len(self.buckets)):
-            self.label_buckets_l[k].setText(f"  Bucket: {self.buckets[k][0]}\n  Liters: {self.buckets[k][1]}")
+            self.label_buckets_l[k].setText(f"  Ведро: {self.buckets[k][0]}\n  Литры: {self.buckets[k][1]}")
 
     def paint_buckets(self):
-        print(f"Painting buckets with colors: {self.cur_colors}")  # Debug output
+        # print(f"Painting buckets with colors: {self.cur_colors}")  # Debug output
         for k in range(len(self.buckets_l)):
-            print(f"Bucket {k}: Color {self.cur_colors[k]}")  # Debug output
+            # print(f"Bucket {k}: Color {self.cur_colors[k]}")  # Debug output
             self.buckets_l[k].setPixmap(recolor_image(self.buckets_l[k].pixmap(), target_color=self.cur_colors[k]))
 
-    def shake_bucket(self, index):
+    def shake_bucket(self, index, al=False):
         bucket = self.buckets_l[index]  # Получаем ведро по индексу
 
         # Создаем эффект прозрачности
         opacity_effect = QGraphicsOpacityEffect(bucket)
         bucket.setGraphicsEffect(opacity_effect)
 
-        # Создаем анимацию изменения прозрачности
-        self.opacity_animation = QPropertyAnimation(opacity_effect, b"opacity")
-        self.opacity_animation.setDuration(self.shake_duration)  # Длительность анимации
-        self.opacity_animation.setStartValue(1.0)  # Начальная прозрачность (100%)
-        self.opacity_animation.setKeyValueAt(0.5, 0.4)  # Прозрачность до 40% на середине анимации
-        self.opacity_animation.setEndValue(1.0)  # Возвращаем прозрачность обратно до 100%
+        # Устанавливаем начальную прозрачность (100%)
+        opacity_effect.setOpacity(1.0)
 
-        self.opacity_animation.start()
+        # Изменяем прозрачность до 40%
+        if not al:
+            opacity_effect.setOpacity(0.4)
+        if al:
+            opacity_effect.setOpacity(0.0)
+
+        # Создаем таймер для возврата прозрачности через некоторое время
+        QTimer.singleShot(self.shake_duration, lambda: opacity_effect.setOpacity(1.0))  # Запуск анимации
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
@@ -454,39 +459,46 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
             # Удаляем данные ведра
             del self.buckets[bucket_i]
+            for i in range(len(self.buckets)):
+                self.buckets[i][0] = int(i)
+            print('del')
             # Ensure colors list stays in sync
-            print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
+            # print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
     def test(self, num, bad_num):
         if self.buckets:  # Проверяем, что ведра не пустые
             if self.flag_start:
-                if random.random() <= self.bad_num_chance:
-                    if bad_num % len(self.buckets) == num % len(self.buckets):
-                        self.label_bad_num.setText("Аварийная лампа! Ведра совпадают, заливаем литр!")
+                if random.random() <= self.bad_num_chance: # генерация АЛ
+                    # print(((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1)
+                    if ((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1:
+                        while (bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets)):
+                            bad_num = round(random.randint(0, 9))
+                        self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
                         self.add_water_to_bucket(num % len(self.buckets))
-                    elif self.check_bucket_empty(bad_num % len(self.buckets)):
-                        self.label_bad_num.setText("Аварийная лампа! Ведро пустое, пропускаем!")
-                        self.label_generated_number.setText(
-                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
-                        self.add_water_to_bucket(num % len(self.buckets))
-                    else:
-                        self.label_bad_num.setText(
-                            f"Аварийная лампа! Из ведра {str(bad_num % len(self.buckets))} выбежал литр(")
+                        self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
                         self.remove_water_from_bucket(bad_num % len(self.buckets))
-                        self.label_generated_number.setText(
-                            f"Gen: {str(num)} Av: {str(bad_num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                        self.shake_bucket(num % len(self.buckets))
+                        self.shake_bucket(bad_num % len(self.buckets), True)
+
+                    elif (bad_num % len(self.buckets) == num % len(self.buckets)) and len(self.buckets) == 1:
+                        self.label_bad_num.setText(f"АЛ не сработает, осталось одно ведро")
                         self.add_water_to_bucket(num % len(self.buckets))
-                    self.shake_bucket(num % len(self.buckets))
+                        self.shake_bucket(num % len(self.buckets))
+                        self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
+                    else:
+                        self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
+                        self.add_water_to_bucket(num % len(self.buckets))
+                        self.remove_water_from_bucket(bad_num % len(self.buckets))
+                        self.shake_bucket(num % len(self.buckets))
+                        self.shake_bucket(bad_num % len(self.buckets), True)
+                        self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
                 else:
                     self.label_bad_num.setText("Все работает без ошибок :)")
-                    self.label_generated_number.setText(
-                        f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                    self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
                     self.add_water_to_bucket(num % len(self.buckets))
                     self.shake_bucket(num % len(self.buckets))
-
                 if not self.check_bucket_full(num % len(self.buckets)):
                     self.hide_bucket(num % len(self.buckets))
-
                 self.fill_buckets_text()
 
         elif not self.flag_end:
@@ -540,9 +552,11 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def change_speed(self):
         self.current_speed = self.slider_speed.value()
+
         self.label_speed.setText(str(self.current_speed))
         self.speed = self.current_speed
         self.tick_time = self.calculate_tick_time()
+        self.shake_duration = int(self.tick_time / 3)
         self.label_tick_time.setText(str(self.tick_time))
         self.worker.update_params(self.tick_time)
 

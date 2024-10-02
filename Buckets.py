@@ -342,7 +342,8 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def open_settings(self):
         """Открывает файл с настройками и загружает данные."""
         colors, liters, speed, bad_chance = read_custom_settings()
-        if colors and liters and speed and bad_chance:
+        # print(colors and liters and speed and bad_chance)
+        if colors and liters and speed+1 and bad_chance+1:
             self.cur_colors = colors
             self.speed = speed
             self.bad_num_chance = bad_chance / 100  # Присваиваем цветам из файла
@@ -387,6 +388,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def open_liters(self):
         if self.flag_start: self.start()
         self.Form_liters.show()
+        self.Form_liters.fill_liters_form()
         self.hide()
 
     def fc_ok(self):
@@ -457,6 +459,9 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
             # Удаляем данные ведра
             del self.buckets[bucket_i]
+            for i in range(len(self.buckets)):
+                self.buckets[i][0] = int(i)
+            print('del')
             # Ensure colors list stays in sync
             # print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
