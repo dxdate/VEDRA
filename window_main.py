@@ -20,6 +20,7 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         MainWindow.setFont(font)
+        MainWindow.setStyleSheet("background-color: rgb(255, 229, 211);")
         MainWindow.setInputMethodHints(QtCore.Qt.ImhNone)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -41,17 +42,141 @@ class Ui_MainWindow(object):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.button_start = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.button_start.setStyleSheet("\n"
+"QPushButton{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #d3dae3;\n"
+"    padding: 2px;\n"
+"    background-color: rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton::default{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #FFFFFF;\n"
+"    padding: 2px;\n"
+"    background-color:  rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton:hover{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #C0DB50, stop:0.4 #C0DB50, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #C0DB50, stop:1 #C0DB50);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}\n"
+"QPushButton:pressed{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #d33af1, stop:0.4 #d33af1, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #d33af1, stop:1 #d33af1);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}")
         self.button_start.setObjectName("button_start")
         self.verticalLayout.addWidget(self.button_start)
         self.button_pause = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.button_pause.setEnabled(False)
+        self.button_pause.setStyleSheet("\n"
+"QPushButton{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #d3dae3;\n"
+"    padding: 2px;\n"
+"    background-color: rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton::default{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #FFFFFF;\n"
+"    padding: 2px;\n"
+"    background-color:  rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton:hover{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #C0DB50, stop:0.4 #C0DB50, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #C0DB50, stop:1 #C0DB50);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}\n"
+"QPushButton:pressed{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #d33af1, stop:0.4 #d33af1, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #d33af1, stop:1 #d33af1);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}\n"
+"")
         self.button_pause.setObjectName("button_pause")
         self.verticalLayout.addWidget(self.button_pause)
         self.button_exit = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.button_exit.setStyleSheet("\n"
+"QPushButton{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #d3dae3;\n"
+"    padding: 2px;\n"
+"    background-color: rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton::default{\n"
+"    border-style: solid;\n"
+"    border-color: #050a0e;\n"
+"    border-width: 1px;\n"
+"    border-radius: 5px;\n"
+"    color: #FFFFFF;\n"
+"    padding: 2px;\n"
+"    background-color:  rgb(112, 133, 255);\n"
+"}\n"
+"QPushButton:hover{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #C0DB50, stop:0.4 #C0DB50, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #C0DB50, stop:1 #C0DB50);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #C0DB50, stop:0.3 #C0DB50, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}\n"
+"QPushButton:pressed{\n"
+"    border-style: solid;\n"
+"    border-top-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #d33af1, stop:0.4 #d33af1, stop:0.5 #100E19, stop:1 #100E19);\n"
+"    border-bottom-color: qlineargradient(spread:pad, x1:0, y1:1, x2:1, y2:1, stop:0 #100E19, stop:0.5 #100E19, stop:0.6 #d33af1, stop:1 #d33af1);\n"
+"    border-left-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-right-color: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #d33af1, stop:0.3 #d33af1, stop:0.7 #100E19, stop:1 #100E19);\n"
+"    border-width: 2px;\n"
+"    border-radius: 1px;\n"
+"    color:  #d3dae3;\n"
+"    padding: 2px;\n"
+"}")
         self.button_exit.setObjectName("button_exit")
         self.verticalLayout.addWidget(self.button_exit)
         self.label_generated_number = QtWidgets.QLabel(self.centralwidget)
-        self.label_generated_number.setGeometry(QtCore.QRect(10, 10, 401, 16))
+        self.label_generated_number.setGeometry(QtCore.QRect(10, 3, 401, 16))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_generated_number.setFont(font)
@@ -92,14 +217,14 @@ class Ui_MainWindow(object):
         self.slider_speed.setTickInterval(5)
         self.slider_speed.setObjectName("slider_speed")
         self.label_bad_num = QtWidgets.QLabel(self.centralwidget)
-        self.label_bad_num.setGeometry(QtCore.QRect(10, 30, 401, 16))
+        self.label_bad_num.setGeometry(QtCore.QRect(10, 23, 401, 16))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bad_num.setFont(font)
         self.label_bad_num.setText("")
         self.label_bad_num.setObjectName("label_bad_num")
         self.label_bucket_1 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_1.setGeometry(QtCore.QRect(14, 110, 71, 31))
+        self.label_bucket_1.setGeometry(QtCore.QRect(14, 120, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_1.setFont(font)
@@ -117,13 +242,13 @@ class Ui_MainWindow(object):
         self.bucket_3.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_3.setObjectName("bucket_3")
         self.label_bucket_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_2.setGeometry(QtCore.QRect(96, 110, 71, 31))
+        self.label_bucket_2.setGeometry(QtCore.QRect(96, 120, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_2.setFont(font)
         self.label_bucket_2.setObjectName("label_bucket_2")
         self.label_bucket_5 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_5.setGeometry(QtCore.QRect(342, 110, 71, 31))
+        self.label_bucket_5.setGeometry(QtCore.QRect(342, 120, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_5.setFont(font)
@@ -137,38 +262,38 @@ class Ui_MainWindow(object):
         self.bucket_2.setScaledContents(False)
         self.bucket_2.setObjectName("bucket_2")
         self.label_bucket_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_3.setGeometry(QtCore.QRect(178, 110, 71, 31))
+        self.label_bucket_3.setGeometry(QtCore.QRect(178, 120, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_3.setFont(font)
         self.label_bucket_3.setObjectName("label_bucket_3")
         self.bucket_8 = QtWidgets.QLabel(self.centralwidget)
-        self.bucket_8.setGeometry(QtCore.QRect(175, 179, 75, 75))
+        self.bucket_8.setGeometry(QtCore.QRect(175, 189, 75, 75))
         self.bucket_8.setText("")
         self.bucket_8.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_8.setObjectName("bucket_8")
         self.bucket_6 = QtWidgets.QLabel(self.centralwidget)
-        self.bucket_6.setGeometry(QtCore.QRect(11, 179, 75, 75))
+        self.bucket_6.setGeometry(QtCore.QRect(11, 189, 75, 75))
         self.bucket_6.setText("")
         self.bucket_6.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_6.setObjectName("bucket_6")
         self.bucket_7 = QtWidgets.QLabel(self.centralwidget)
-        self.bucket_7.setGeometry(QtCore.QRect(93, 179, 75, 75))
+        self.bucket_7.setGeometry(QtCore.QRect(93, 189, 75, 75))
         self.bucket_7.setText("")
         self.bucket_7.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_7.setObjectName("bucket_7")
         self.bucket_9 = QtWidgets.QLabel(self.centralwidget)
-        self.bucket_9.setGeometry(QtCore.QRect(257, 179, 75, 75))
+        self.bucket_9.setGeometry(QtCore.QRect(257, 189, 75, 75))
         self.bucket_9.setText("")
         self.bucket_9.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_9.setObjectName("bucket_9")
         self.bucket_10 = QtWidgets.QLabel(self.centralwidget)
-        self.bucket_10.setGeometry(QtCore.QRect(339, 179, 75, 75))
+        self.bucket_10.setGeometry(QtCore.QRect(339, 189, 75, 75))
         self.bucket_10.setText("")
         self.bucket_10.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_10.setObjectName("bucket_10")
         self.label_bucket_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_4.setGeometry(QtCore.QRect(260, 110, 71, 31))
+        self.label_bucket_4.setGeometry(QtCore.QRect(260, 120, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_4.setFont(font)
@@ -186,38 +311,38 @@ class Ui_MainWindow(object):
         self.bucket_5.setPixmap(QtGui.QPixmap("images/bucket.png"))
         self.bucket_5.setObjectName("bucket_5")
         self.label_bucket_6 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_6.setGeometry(QtCore.QRect(14, 250, 71, 31))
+        self.label_bucket_6.setGeometry(QtCore.QRect(14, 260, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_6.setFont(font)
         self.label_bucket_6.setObjectName("label_bucket_6")
         self.label_bucket_7 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_7.setGeometry(QtCore.QRect(96, 250, 71, 31))
+        self.label_bucket_7.setGeometry(QtCore.QRect(96, 260, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_7.setFont(font)
         self.label_bucket_7.setObjectName("label_bucket_7")
         self.label_bucket_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_8.setGeometry(QtCore.QRect(178, 250, 71, 31))
+        self.label_bucket_8.setGeometry(QtCore.QRect(178, 260, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_8.setFont(font)
         self.label_bucket_8.setObjectName("label_bucket_8")
         self.label_bucket_9 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_9.setGeometry(QtCore.QRect(260, 250, 71, 31))
+        self.label_bucket_9.setGeometry(QtCore.QRect(260, 260, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_9.setFont(font)
         self.label_bucket_9.setObjectName("label_bucket_9")
         self.label_bucket_10 = QtWidgets.QLabel(self.centralwidget)
-        self.label_bucket_10.setGeometry(QtCore.QRect(342, 250, 71, 31))
+        self.label_bucket_10.setGeometry(QtCore.QRect(342, 260, 71, 31))
         font = QtGui.QFont()
         font.setPointSize(8)
         self.label_bucket_10.setFont(font)
         self.label_bucket_10.setObjectName("label_bucket_10")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 425, 26))
         self.menubar.setObjectName("menubar")
         self.menu = QtWidgets.QMenu(self.menubar)
         self.menu.setObjectName("menu")

@@ -3,26 +3,31 @@ import random
 import sys
 import time
 import copy
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QGraphicsOpacityEffect
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt
+from PyQt5.QtCore import pyqtSignal as Signal, QThread, Qt, QPropertyAnimation, QPoint, QEasingCurve
 from PyQt5.QtGui import QIntValidator, QPixmap, QColor, QIcon, QBrush
 from PyQt5.QtWidgets import QMainWindow, QWidget
 from window_colors import Ui_colors
 from window_main import Ui_MainWindow
-from  window_liters import  Ui_liters_form
+from window_liters import Ui_liters_form
 
-default_colors = [[255, 0, 0],[0, 255, 0],[0, 0, 255],[255, 255, 0],[255, 0, 255],[0, 255, 255],[128, 0, 0],[0, 128, 0],[0, 0, 128],
-[128, 128, 0],[128, 0, 128],[0, 128, 128],[192, 192, 192],[128, 128, 128],[255, 165, 0],[0, 255, 127]]
+default_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255], [128, 0, 0],
+                  [0, 128, 0], [0, 0, 128],
+                  [128, 128, 0], [128, 0, 128], [0, 128, 128], [192, 192, 192], [128, 128, 128], [255, 165, 0],
+                  [0, 255, 127]]
 colors = default_colors
 default_buckets = []
 for i in range(1, 11):
-    default_buckets.append([i-1, 1])
+    default_buckets.append([i - 1, 1])
+
 
 def quit_app():
     sys.exit(0)
 
+
 import ast  # Импортируем модуль ast для безопасной оценки строк
+
 
 def read_custom_settings():
     default_colors = []
@@ -69,7 +74,8 @@ def read_custom_settings():
                 if colors_section:
                     try:
                         color_values = ast.literal_eval(line)  # Преобразуем строку в список чисел
-                        if len(color_values) != 3 or not all(isinstance(x, int) and 0 <= x <= 255 for x in color_values):
+                        if len(color_values) != 3 or not all(
+                                isinstance(x, int) and 0 <= x <= 255 for x in color_values):
                             raise ValueError(f"Неверный цвет: {color_values}")  # Проверка корректности цвета
                         if tuple(color_values) in color_set:
                             raise ValueError(f"Цвет {color_values} уже существует.")  # Проверка на уникальность
@@ -85,7 +91,8 @@ def read_custom_settings():
                         if len(bucket_values) != 2 or not all(isinstance(x, int) for x in bucket_values):
                             raise ValueError(f"Неверные значения ведер: {bucket_values}")  # Проверка корректности ведер
                         if bucket_values[1] > 9:
-                            raise ValueError(f"Общее количество литров в ведрах {bucket_values} не должно превышать 9!")  # Проверка на максимальную заполненность
+                            raise ValueError(
+                                f"Общее количество литров в ведрах {bucket_values} не должно превышать 9!")  # Проверка на максимальную заполненность
                         default_liters.append(bucket_values)
                     except (SyntaxError, ValueError) as e:
                         raise ValueError(f"Ошибка при обработке ведер: {line}. {str(e)}")
@@ -97,7 +104,8 @@ def read_custom_settings():
         except ValueError as e:
             QMessageBox.critical(None, "Ошибка", str(e))
         except Exception as e:
-            QMessageBox.critical(None, "Ошибка", "Произошла ошибка при чтении файла:\n" + "Файл поврежден и не может быть прочитан")
+            QMessageBox.critical(None, "Ошибка",
+                                 "Произошла ошибка при чтении файла:\n" + "Файл поврежден и не может быть прочитан")
             print(e)
 
 
@@ -112,6 +120,7 @@ def save_custom_settings(colors, buckets, speed, bad_chance):
             for i in buckets:
                 buckets_f += str(i) + '\n'
             f.write(f'[colors]\n{colors_f}[buckets]\n{buckets_f}[speed] {speed}\n[bad] {int(bad_chance * 100)}')
+
 
 def recolor_image(pixmap, target_color=(0, 0, 255), tolerance=255):
     pixmap = QPixmap("images/bucket.png")
@@ -291,6 +300,9 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.buckets = []
         self.tick_time = 0
 
+        self.shake_duration = 100
+        self.shake_amount = 3  # Сколько пикселей будет смещение при покачивании
+
         # Инициализация уникальных цветов для ведер
         self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
         self.Form_liters = Form_liters(self)
@@ -334,12 +346,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
         if colors and liters and speed and bad_chance:
             self.cur_colors = colors
             self.speed = speed
-            self.bad_num_chance = bad_chance / 100 # Присваиваем цветам из файла
+            self.bad_num_chance = bad_chance / 100  # Присваиваем цветам из файла
             default_buckets.clear()  # Очищаем старые значения ведер
             default_buckets.extend(liters)  # Записываем новые значения ведер
             self.update_buckets_liters()
             self.slider_speed.setValue(self.speed)
-            self.Form_liters.horizontalSlider.setValue(bad_chance)# Обновляем ведра в основном окне
+            self.Form_liters.horizontalSlider.setValue(bad_chance)  # Обновляем ведра в основном окне
 
     def update_buckets_liters(self):
         """Обновить отображение ведер на основе их текущих значений"""
@@ -383,7 +395,6 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.Form_colors.apply_colors()
 
     def init_app(self):
-
         # В этом месте `cur_colors` уже инициализирован и готов к использованию
         self.buckets = self.generate_buckets()
         print(self.buckets)
@@ -416,9 +427,21 @@ class Main_window(QMainWindow, Ui_MainWindow):
             print(f"Bucket {k}: Color {self.cur_colors[k]}")  # Debug output
             self.buckets_l[k].setPixmap(recolor_image(self.buckets_l[k].pixmap(), target_color=self.cur_colors[k]))
 
-    # Остальные функции остаются без изменений...
+    def shake_bucket(self, index):
+        bucket = self.buckets_l[index]  # Получаем ведро по индексу
 
-    # Остальные функции остаются без изменений...
+        # Создаем эффект прозрачности
+        opacity_effect = QGraphicsOpacityEffect(bucket)
+        bucket.setGraphicsEffect(opacity_effect)
+
+        # Создаем анимацию изменения прозрачности
+        self.opacity_animation = QPropertyAnimation(opacity_effect, b"opacity")
+        self.opacity_animation.setDuration(self.shake_duration)  # Длительность анимации
+        self.opacity_animation.setStartValue(1.0)  # Начальная прозрачность (100%)
+        self.opacity_animation.setKeyValueAt(0.5, 0.4)  # Прозрачность до 40% на середине анимации
+        self.opacity_animation.setEndValue(1.0)  # Возвращаем прозрачность обратно до 100%
+
+        self.opacity_animation.start()
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
@@ -432,7 +455,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
             # Удаляем данные ведра
             del self.buckets[bucket_i]
-  # Ensure colors list stays in sync
+            # Ensure colors list stays in sync
             print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
     def test(self, num, bad_num):
@@ -445,20 +468,22 @@ class Main_window(QMainWindow, Ui_MainWindow):
                     elif self.check_bucket_empty(bad_num % len(self.buckets)):
                         self.label_bad_num.setText("Аварийная лампа! Ведро пустое, пропускаем!")
                         self.label_generated_number.setText(
-                            f"Gen num: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
                     else:
                         self.label_bad_num.setText(
                             f"Аварийная лампа! Из ведра {str(bad_num % len(self.buckets))} выбежал литр(")
                         self.remove_water_from_bucket(bad_num % len(self.buckets))
                         self.label_generated_number.setText(
-                            f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
+                            f"Gen: {str(num)} Av: {str(bad_num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                         self.add_water_to_bucket(num % len(self.buckets))
+                    self.shake_bucket(num % len(self.buckets))
                 else:
                     self.label_bad_num.setText("Все работает без ошибок :)")
                     self.label_generated_number.setText(
                         f"Gen: {str(num)}  Добавили в ведро: {str(num % len(self.buckets))}")
                     self.add_water_to_bucket(num % len(self.buckets))
+                    self.shake_bucket(num % len(self.buckets))
 
                 if not self.check_bucket_full(num % len(self.buckets)):
                     self.hide_bucket(num % len(self.buckets))
@@ -488,7 +513,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def stop(self):  # сбрасывать ведра на НУ !доделать!
         self.worker.stop_signal(False)
         self.flag_start = False
-        self.flag_end= False
+        self.flag_end = False
         self.label_generated_number.setText('')
         self.label_bad_num.setText('')
         self.button_start.setText('Старт')
