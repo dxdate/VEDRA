@@ -480,7 +480,8 @@ class Main_window(QMainWindow, Ui_MainWindow):
             opacity_effect.setOpacity(0.4)
         if al:
             self.rl[index].show()
-            QTimer.singleShot(int(self.shake_duration / 2), lambda: self.rl[index].hide())
+            QTimer.singleShot(int(self.shake_duration / 2.3), lambda: self.rl[index].hide())
+            # self.rl[index].hide()
 
             # self.rl[index].hide()
 
