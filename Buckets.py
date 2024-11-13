@@ -416,6 +416,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def check_bucket_empty(self, bucket_i):
         if self.buckets[bucket_i][1] == 0:
+            del self.not_full_b[bucket_i]
             return True
         return False
 
@@ -430,6 +431,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         self.Form_colors.apply_colors()
 
     def init_app(self):
+        self.not_full_b = []
         # В этом месте `cur_colors` уже инициализирован и готов к использованию
         self.rl = [self.rl_1, self.rl_2, self.rl_3, self.rl_4, self.rl_5, self.rl_6, self.rl_7, self.rl_8, self.rl_9,
                    self.rl_10]
@@ -510,20 +512,41 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def test(self, num, bad_num):
         if self.buckets:  # Проверяем, что ведра не пустые
             if self.flag_start:
-                if random.randint(0, 100) <= self.bad_num_chance:  # генерация АЛ
+                if random.randint(0, 100) <= self.bad_num_chance:
+                    for i in self.buckets:
+                        if i[0] != 0:
+                            self.not_full_b.append(i)
+                    # генерация АЛ
                     # print(((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1)
                     if ((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
-                            bad_num % len(self.buckets))) and len(self.buckets) > 1:
+                            bad_num % len(self.buckets))) and len(self.buckets) > 1 and self.not_full_b:
                         if len(self.buckets) > 2:
+                            cnt = 0
+                            breakout = False
                             while (bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
-                                    bad_num % len(self.buckets)):
+                                bad_num % len(self.buckets)):
+                                cnt += 1
+                                if cnt >= 100000:
+                                    self.label_bad_num.setText('Ал не сработала')
+                                    breakout = True
+                                    break
+                            if breakout:
                                 bad_num = round(random.randint(0, 9))
-                            self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
-                            self.add_water_to_bucket(num % len(self.buckets))
-                            self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                            self.remove_water_from_bucket(bad_num % len(self.buckets))
-                            self.shake_bucket(num % len(self.buckets))
-                            self.shake_bucket(bad_num % len(self.buckets), True)
+                                # self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
+                                self.add_water_to_bucket(num % len(self.buckets))
+                                self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
+                                # self.remove_water_from_bucket(bad_num % len(self.buckets))
+                                self.shake_bucket(num % len(self.buckets))
+                                # self.shake_bucket(bad_num % len(self.buckets), True)
+                            else:
+                                bad_num = round(random.randint(0, 9))
+                                self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
+                                self.add_water_to_bucket(num % len(self.buckets))
+                                self.label_generated_number.setText(
+                                    f'Добавляем литр в ведро: {num % len(self.buckets)}')
+                                self.remove_water_from_bucket(bad_num % len(self.buckets))
+                                self.shake_bucket(num % len(self.buckets))
+                                self.shake_bucket(bad_num % len(self.buckets), True)
                         else:
                             self.label_bad_num.setText(f'АЛ не сработала')
                             self.add_water_to_bucket(num % len(self.buckets))
