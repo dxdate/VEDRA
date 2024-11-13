@@ -33,14 +33,16 @@ colors_name = {
 
 colors = list(colors_name.keys())
 
+
 # Функция для получения названия цвета по RGB-коду
 def get_color_name(rgb):
     return colors_name.get(tuple(rgb), f"{rgb[0]} {rgb[1]} {rgb[2]}")
 
-default_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255],[255, 255, 0], [255, 0, 255], [0, 255, 255], [128, 0, 0],
-[0, 128, 0], [0, 0, 128],
-[128, 128, 0], [128, 0, 128], [0, 128, 128], [192, 192, 192], [128, 128, 128], [255, 165, 0],
-[0, 255, 127]]
+
+default_colors = [[255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255], [128, 0, 0],
+                  [0, 128, 0], [0, 0, 128],
+                  [128, 128, 0], [128, 0, 128], [0, 128, 128], [192, 192, 192], [128, 128, 128], [255, 165, 0],
+                  [0, 255, 127]]
 colors = default_colors
 default_buckets = []
 for i in range(1, 11):
@@ -194,10 +196,10 @@ class Form_Colors(QWidget, Ui_colors):
 
     def color_changed(self, index):
         """Обработчик изменения цвета в комбо боксе"""
-        current_color = list(map(int, self.color_boxes[index].currentText().split()))  # Новый выбранный цвет
-        self.previous_colors[index] = current_color  # Обновляем цвет в списке выбранных
-        # print(f"ComboBox {index}: Selected color {current_color}")  # Debug output
-        self.update_color_boxes()  # Обновляем все комбобоксы
+        current_color = self.color_boxes[index].currentData()  # Получаем RGB-цвет как данные элемента
+        if current_color:  # Проверяем, что данные не пустые
+            self.temporary_colors[index] = current_color  # Обновляем временные цвета
+        self.update_color_boxes()  # Обновляем все комбобоксы # Обновляем все комбобоксы
 
     def apply_colors(self):
         """Применяем временные цвета в качестве текущих и закрываем окно"""
@@ -224,17 +226,21 @@ class Form_Colors(QWidget, Ui_colors):
 
             # Текущий цвет комбобокса - это временный цвет
             current_color = self.temporary_colors[i]
-            combo_box.addItem(self.create_color_icon(current_color), get_color_name(current_color))
+            color_name = colors_name.get(tuple(current_color), "Неизвестный цвет")
+
+            # Добавляем текущий цвет первым элементом, чтобы оставить его в списке
+            combo_box.addItem(self.create_color_icon(current_color), color_name)
             combo_box.setItemData(0, current_color)
 
             # Убираем текущий цвет из множества, чтобы он оставался в текущем комбобоксе
             available_colors = [color for color in colors if
                                 tuple(color) not in selected_colors or color == current_color]
 
+            # Добавляем остальные доступные цвета
             for color in available_colors:
-                if color != current_color:
-                    combo_box.addItem(self.create_color_icon(color), get_color_name(color))
-                    combo_box.setItemData(combo_box.count() - 1, color)
+                color_name = colors_name.get(tuple(color), "Неизвестный цвет")
+                combo_box.addItem(self.create_color_icon(color), color_name)
+                combo_box.setItemData(combo_box.count() - 1, color)
 
             combo_box.blockSignals(False)
 
@@ -271,8 +277,6 @@ class Form_liters(QWidget, Ui_liters_form):
             random_liters = random.randint(0, 10)  # Генерируем случайное количество литров от 0 до 10
             self.liter_boxes[i].setValue(random_liters)
 
-
-
     def fill_liters_form(self):
         """Заполняет форму с литрами значениями из buckets_liters"""
         for i in range(len(default_buckets)):
@@ -294,7 +298,7 @@ class Form_liters(QWidget, Ui_liters_form):
     def cancel(self):
         """Отмена изменений, возврат в главное окно"""
         # print("Liters adjustment canceled.")  # Debug output
-        self.showmain()# Показываем главное окно
+        self.showmain()  # Показываем главное окно
         self.close()  # Закрываем текущее окно
 
     def showmain(self):
@@ -302,7 +306,6 @@ class Form_liters(QWidget, Ui_liters_form):
         #     if int(default_buckets[i][1]) == 10:
         #         self.main_window.hide_bucket(i)
         self.main_window.show()
-
 
 
 class Main_window(QMainWindow, Ui_MainWindow):
@@ -373,7 +376,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         """Открывает файл с настройками и загружает данные."""
         colors, liters, speed, bad_chance = read_custom_settings()
         # print(colors and liters and speed and bad_chance)
-        if colors and liters and speed+1 and bad_chance+1:
+        if colors and liters and speed + 1 and bad_chance + 1:
             self.cur_colors = colors
             self.speed = speed
             self.bad_num_chance = bad_chance  # Присваиваем цветам из файла
@@ -428,7 +431,8 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def init_app(self):
         # В этом месте `cur_colors` уже инициализирован и готов к использованию
-        self.rl = [self.rl_1, self.rl_2, self.rl_3, self.rl_4, self.rl_5, self.rl_6, self.rl_7, self.rl_8, self.rl_9, self.rl_10]
+        self.rl = [self.rl_1, self.rl_2, self.rl_3, self.rl_4, self.rl_5, self.rl_6, self.rl_7, self.rl_8, self.rl_9,
+                   self.rl_10]
         for i in range(len(self.rl)):
             self.rl[i].hide()
         self.buckets = self.generate_buckets()
@@ -476,12 +480,12 @@ class Main_window(QMainWindow, Ui_MainWindow):
             opacity_effect.setOpacity(0.4)
         if al:
             self.rl[index].show()
-            QTimer.singleShot(int(self.shake_duration/2), lambda: self.rl[index].hide())
+            QTimer.singleShot(int(self.shake_duration / 2), lambda: self.rl[index].hide())
 
             # self.rl[index].hide()
 
         # Создаем таймер для возврата прозрачности через некоторое время
-        QTimer.singleShot(int(self.shake_duration/2), lambda: opacity_effect.setOpacity(1.0))  # Запуск анимации
+        QTimer.singleShot(int(self.shake_duration / 2), lambda: opacity_effect.setOpacity(1.0))  # Запуск анимации
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
@@ -494,7 +498,6 @@ class Main_window(QMainWindow, Ui_MainWindow):
             del self.buckets_l[bucket_i]
             del self.label_buckets_l[bucket_i]
 
-
             # Удаляем данные ведра
             del self.buckets[bucket_i]
             for i in range(len(self.buckets)):
@@ -506,11 +509,13 @@ class Main_window(QMainWindow, Ui_MainWindow):
     def test(self, num, bad_num):
         if self.buckets:  # Проверяем, что ведра не пустые
             if self.flag_start:
-                if random.randint(0, 100) <= self.bad_num_chance: # генерация АЛ
+                if random.randint(0, 100) <= self.bad_num_chance:  # генерация АЛ
                     # print(((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1)
-                    if ((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1:
+                    if ((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
+                            bad_num % len(self.buckets))) and len(self.buckets) > 1:
                         if len(self.buckets) > 2:
-                            while (bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets)):
+                            while (bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
+                                    bad_num % len(self.buckets)):
                                 bad_num = round(random.randint(0, 9))
                             self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
                             self.add_water_to_bucket(num % len(self.buckets))
@@ -558,35 +563,32 @@ class Main_window(QMainWindow, Ui_MainWindow):
                 self.hide_bucket(i)
 
     def start(self):
-            if self.flag_start:
-                self.stop()
+        if self.flag_start:
+            self.stop()
+        else:
+            self.check_all_full_buckets()
+            if not self.flag_pause:
+                self.action_save.setEnabled(False)
+                self.action_open.setEnabled(False)
+                self.action_liters.setEnabled(False)
+                self.action_colors.setEnabled(False)
+                self.flag_start = True
+                self.button_start.setText('Стоп')
+                # self.button_pause.setEnabled(True)
+                self.worker.stop_signal(True)
+                self.worker.update_params(self.tick_time)
+                self.worker.start()
             else:
-                self.check_all_full_buckets()
-                if not self.flag_pause:
-                    self.action_save.setEnabled(False)
-                    self.action_open.setEnabled(False)
-                    self.action_liters.setEnabled(False)
-                    self.action_colors.setEnabled(False)
-                    self.flag_start = True
-                    self.button_start.setText('Стоп')
-                    # self.button_pause.setEnabled(True)
-                    self.worker.stop_signal(True)
-                    self.worker.update_params(self.tick_time)
-                    self.worker.start()
-                else:
-                    self.action_save.setEnabled(False)
-                    self.action_open.setEnabled(False)
-                    self.action_liters.setEnabled(False)
-                    self.action_colors.setEnabled(False)
-                    self.flag_start = True
-                    self.button_start.setText('Стоп')
-                    # self.button_pause.setEnabled(True)
-                    # self.worker.stop_signal(True)
-                    self.worker.update_params(self.tick_time)
-                    # self.worker.start()
-
-
-
+                self.action_save.setEnabled(False)
+                self.action_open.setEnabled(False)
+                self.action_liters.setEnabled(False)
+                self.action_colors.setEnabled(False)
+                self.flag_start = True
+                self.button_start.setText('Стоп')
+                # self.button_pause.setEnabled(True)
+                # self.worker.stop_signal(True)
+                self.worker.update_params(self.tick_time)
+                # self.worker.start()
 
     def stop(self):
         self.worker.stop_signal(False)
@@ -656,6 +658,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.slider_bad_chance.setValue(int(self.label_bad_chance.text()))
         except Exception as ex:
             print(ex)
+
 
 class Worker(QThread):
     generated_number = Signal(int, int)
