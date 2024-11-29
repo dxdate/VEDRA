@@ -324,7 +324,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         # for i in range(len(self.rl)):
         #     self.rl[i].hide()
         self.shake_duration = 100
-
+        self.empty_buckets = []
         # Инициализация уникальных цветов для ведер
         self.cur_colors = [colors[i] for i in range(10)]  # Здесь `colors` — это список возможных цветов.
         self.Form_liters = Form_liters(self)
@@ -398,7 +398,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         return self.buckets
 
     def calculate_tick_time(self):
-        print(int(self.zero_speed_time / (1 + (self.speed / 10) ** 2.7)))
+        # print(int(self.zero_speed_time / (1 + (self.speed / 10) ** 2.7)))
         return int(self.zero_speed_time / (1 + (self.speed / 10) ** 2.7))
 
     def add_water_to_bucket(self, bucket_i):
@@ -406,6 +406,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
         return self.buckets
 
     def remove_water_from_bucket(self, bucket_i):
+        print(bucket_i, self.buckets[bucket_i])
         self.buckets[bucket_i][1] -= 1
         return self.buckets
 
@@ -416,6 +417,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
 
     def check_bucket_empty(self, bucket_i):
         if self.buckets[bucket_i][1] == 0:
+            self.empty_buckets.append(self.buckets[bucket_i][1])
             return True
         return False
 
@@ -480,22 +482,23 @@ class Main_window(QMainWindow, Ui_MainWindow):
             opacity_effect.setOpacity(0.4)
         if al:
             self.rl[index].show()
-            QTimer.singleShot(int(self.shake_duration / 2.3), lambda: self.rl[index].hide())
+            QTimer.singleShot(int(self.shake_duration / 3), lambda: self.rl[index].hide())
             # self.rl[index].hide()
 
             # self.rl[index].hide()
 
         # Создаем таймер для возврата прозрачности через некоторое время
-        QTimer.singleShot(int(self.shake_duration / 2), lambda: opacity_effect.setOpacity(1.0))  # Запуск анимации
+        QTimer.singleShot(int(self.shake_duration / 3), lambda: opacity_effect.setOpacity(1.0))  # Запуск анимации
 
     def hide_bucket(self, bucket_i):
         if bucket_i < len(self.buckets_l):
             # Скрываем виджет и метку
+            del self.rl[bucket_i]
             self.buckets_l[bucket_i].hide()
             self.label_buckets_l[bucket_i].hide()
 
             # Удаляем виджет и метку из их списков
-            del self.rl[bucket_i]
+
             del self.buckets_l[bucket_i]
             del self.label_buckets_l[bucket_i]
 
@@ -503,60 +506,49 @@ class Main_window(QMainWindow, Ui_MainWindow):
             del self.buckets[bucket_i]
             for i in range(len(self.buckets)):
                 self.buckets[i][0] = int(i)
-            print('del')
+            # print('del')
             # Ensure colors list stays in sync
             # print(f"Bucket {bucket_i} removed. Remaining buckets: {len(self.buckets_l)}")  # Debug output
 
     def test(self, num, bad_num):
-        if self.buckets:  # Проверяем, что ведра не пустые
+        if self.buckets:
+            for i in self.rl:
+                i.hide()
             if self.flag_start:
-                if random.randint(0, 100) <= self.bad_num_chance:  # генерация АЛ
-                    # print(((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(bad_num % len(self.buckets))) and len(self.buckets) > 1)
-                    if ((bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
-                            bad_num % len(self.buckets))) and len(self.buckets) > 1:
-                        if len(self.buckets) > 2:
-                            while (bad_num % len(self.buckets) == num % len(self.buckets)) or self.check_bucket_empty(
-                                    bad_num % len(self.buckets)):
-                                bad_num = round(random.randint(0, 9))
-                            self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
-                            self.add_water_to_bucket(num % len(self.buckets))
-                            self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                            self.remove_water_from_bucket(bad_num % len(self.buckets))
-                            self.shake_bucket(num % len(self.buckets))
-                            self.shake_bucket(bad_num % len(self.buckets), True)
-                        else:
-                            self.label_bad_num.setText(f'АЛ не сработала')
-                            self.add_water_to_bucket(num % len(self.buckets))
-                            self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                            # self.remove_water_from_bucket(bad_num % len(self.buckets))
-                            self.shake_bucket(num % len(self.buckets))
-                            # self.shake_bucket(bad_num % len(self.buckets), True)
+                self.add_water_to_bucket(num % len(self.buckets))
+                self.shake_bucket(num % len(self.buckets))
+                self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
 
-                    elif len(self.buckets) == 1:
-                        self.label_bad_num.setText(f"АЛ не сработает, осталось одно ведро")
-                        self.add_water_to_bucket(num % len(self.buckets))
-                        self.shake_bucket(num % len(self.buckets))
-                        self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                    else:
-                        self.label_bad_num.setText(f'АЛ: {bad_num % len(self.buckets)}')
-                        self.add_water_to_bucket(num % len(self.buckets))
-                        self.remove_water_from_bucket(bad_num % len(self.buckets))
-                        self.shake_bucket(num % len(self.buckets))
-                        self.shake_bucket(bad_num % len(self.buckets), True)
-                        self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                else:
-                    self.label_bad_num.setText("Все работает без ошибок :)")
-                    self.label_generated_number.setText(f'Добавляем литр в ведро: {num % len(self.buckets)}')
-                    self.add_water_to_bucket(num % len(self.buckets))
-                    self.shake_bucket(num % len(self.buckets))
-                if not self.check_bucket_full(num % len(self.buckets)):
-                    self.hide_bucket(num % len(self.buckets))
-                self.fill_buckets_text()
+                if random.randint(0, 100) <= self.bad_num_chance:
+                    not_empty_buck = []
+                    for i in self.buckets:
+                        if i[1] > 0:
+                            not_empty_buck.append(i)
+                    # print(not_empty_buck, i)
+                    while True:
+                        if len(not_empty_buck) > 1:
+                            self.remove_water_from_bucket(not_empty_buck[bad_num % len(not_empty_buck)][0])
+                            self.shake_bucket(not_empty_buck[bad_num % len(not_empty_buck)][0], True)
+                            self.label_bad_num.setText(f'АЛ: {not_empty_buck[bad_num % len(not_empty_buck)][0]}')
+                            break
+                        else:
+                            self.label_bad_num.setText(f'АЛ не откуда вылить')
+                            break
+
+            if not self.check_bucket_full(num % len(self.buckets)):
+                self.hide_bucket(num % len(self.buckets))
+            self.fill_buckets_text()
+
 
         elif not self.flag_end:
             self.flag_end = True
             self.label_generated_number.setText("Ведра заполнены! Нажмите 'СТОП' для перезапуска!")
             self.label_bad_num.setText("")
+
+    def check_all_empty_buckets(self):
+        for i in range(len(default_buckets)):
+            if int(default_buckets[i][1]) == 0:
+                self.empty_buckets.append(default_buckets[i])
 
     def check_all_full_buckets(self):
         for i in reversed(range(len(default_buckets))):
@@ -568,6 +560,7 @@ class Main_window(QMainWindow, Ui_MainWindow):
             self.stop()
         else:
             self.check_all_full_buckets()
+            self.check_all_empty_buckets()
             if not self.flag_pause:
                 self.action_save.setEnabled(False)
                 self.action_open.setEnabled(False)
@@ -690,9 +683,9 @@ class Worker(QThread):
                     start_time = time.time() - elapsed
                     self.updated_tick_time = False
                 # time.sleep(0.01)  # Короткий сон для снижения нагрузки на CPU
-
+            if self.running:
             # Генерация "тика" после времени ожидания
-            self.generated_number.emit(round(random.randint(0, 9)),
+                self.generated_number.emit(round(random.randint(0, 9)),
                                        round(random.randint(0, 9)))  # Пример, можете заменить на свою логику
             # print(f"Tick with tick_time: {self.tick_time}")
 
